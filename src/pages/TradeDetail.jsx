@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import PageHeader from '../components/ui/PageHeader'
 import GlassCard from '../components/ui/GlassCard'
 import Pill from '../components/ui/Pill'
-import { fmtPL, fmtR } from '../utils'
+import { fmtPL } from '../utils'
 import { trades } from '../data/trades'
 
 function Shot({ color, gradientId }) {
@@ -103,27 +103,6 @@ export default function TradeDetail() {
           vClass={trade.outcome === 'loss' ? 'text-rose' : trade.outcome === 'win' ? 'text-mint' : 'text-amber'}
         />
         {trade.reason && <InfoRow k="Trade reason" v={trade.reason} />}
-      </GlassCard>
-
-      <GlassCard className="animate-fade-up mt-4 px-[18px] py-3" style={{ animationDelay: '0.12s' }}>
-        <div className="pt-1 pb-1 text-[11.5px] font-semibold uppercase tracking-[0.05em] text-ink-3">
-          Position Details
-        </div>
-        <InfoRow k="Entry price" v={trade.entry} />
-        <InfoRow k="Exit price" v={trade.exit} />
-        <InfoRow k="Size" v={trade.size} />
-        <InfoRow
-          k="Risk / Reward"
-          v={fmtR(trade.rMultiple)}
-          vClass={
-            trade.outcome === 'win'
-              ? 'text-mint'
-              : trade.outcome === 'loss'
-                ? 'text-rose'
-                : 'text-amber'
-          }
-        />
-        <InfoRow k="Duration" v={trade.duration} />
       </GlassCard>
 
       {trade.notes && (

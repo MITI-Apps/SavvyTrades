@@ -1,11 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
-import { IconGrid, IconJournal, IconHistory, IconGear, IconPlus } from '../Icons'
+import { IconGrid, IconJournal, IconGear, IconPlus } from '../Icons'
 
 const items = [
   { to: '/dashboard', label: 'Dashboard', icon: IconGrid },
   { to: '/journal', label: 'Journal', icon: IconJournal },
   { to: '/add-trade', label: 'Add', icon: IconPlus, center: true },
-  { to: '/history', label: 'History', icon: IconHistory },
   { to: '/settings', label: 'Settings', icon: IconGear },
 ]
 

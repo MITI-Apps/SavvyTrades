@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AtmCard from '../components/ui/AtmCard'
 import GlassCard from '../components/ui/GlassCard'
 import StatCard from '../components/ui/StatCard'
@@ -22,9 +23,13 @@ export default function Dashboard() {
           <div className="text-xs text-ink-3">Good evening</div>
           <div className="font-display text-lg font-bold">Alex Morgan</div>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-gradient-to-br from-blue1 to-blue2 font-display text-sm font-bold text-[#0b0d13]">
+        <Link
+          to="/settings"
+          aria-label="Settings"
+          className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-gradient-to-br from-blue1 to-blue2 font-display text-sm font-bold text-[#0b0d13] transition-transform active:scale-95"
+        >
           AM
-        </div>
+        </Link>
       </div>
 
       <div

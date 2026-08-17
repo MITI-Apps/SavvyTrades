@@ -125,15 +125,6 @@ export function IconJournal(props) {
   )
 }
 
-export function IconHistory(props) {
-  return (
-    <svg width={21} height={21} viewBox="0 0 24 24" {...strokeProps} {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 8v4l3 2" />
-    </svg>
-  )
-}
-
 export function IconGear({ strokeWidth = 1.4, ...props }) {
   return (
     <svg width={21} height={21} viewBox="0 0 24 24" {...strokeProps} strokeWidth={strokeWidth} {...props}>
