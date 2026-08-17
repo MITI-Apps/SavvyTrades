@@ -1,0 +1,85 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { IconMail, IconLock, IconCheck, LogoMark } from '../components/Icons'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+
+export default function Login() {
+  const navigate = useNavigate()
+  const [remember, setRemember] = useState(true)
+
+  return (
+    <div className="my-auto w-full py-10">
+      <div className="animate-fade-up flex justify-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-blue1 to-blue2 shadow-[0_14px_30px_-8px_rgba(124,147,255,0.55)]">
+          <LogoMark />
+        </div>
+      </div>
+      <div className="animate-fade-up mt-6 text-center" style={{ animationDelay: '0.04s' }}>
+        <h1 className="font-display text-[26px] font-semibold tracking-tight">Welcome back</h1>
+        <p className="mt-1.5 text-[13.5px] text-ink-2">Sign in to continue your trading journal</p>
+      </div>
+      <form
+        className="animate-fade-up mt-9 flex flex-col gap-4"
+        style={{ animationDelay: '0.09s' }}
+        onSubmit={(e) => {
+          e.preventDefault()
+          navigate('/dashboard')
+        }}
+      >
+        <Input label="Email" icon={IconMail} type="email" placeholder="you@email.com" required />
+        <Input
+          label="Password"
+          icon={IconLock}
+          type="password"
+          placeholder="••••••••"
+          required
+        />
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setRemember((r) => !r)}
+            className="flex items-center gap-2 text-[13px] text-ink-2"
+          >
+            <span
+              className={`flex h-[18px] w-[18px] items-center justify-center rounded-[6px] transition ${
+                remember
+                  ? 'border border-transparent bg-gradient-to-br from-blue1 to-blue2 text-[#0b0d13]'
+                  : 'border-[1.5px] border-border-strong bg-surface-2'
+              }`}
+            >
+              {remember && <IconCheck />}
+            </span>
+            Remember me
+          </button>
+          <a
+            href="#"
+            onClick={(e) => e.preventDefault()}
+            className="text-[13.5px] font-semibold text-blue1"
+          >
+            Forgot password?
+          </a>
+        </div>
+        <Button type="submit" className="mt-2">
+          Log In
+        </Button>
+      </form>
+      <div className="animate-fade-up mt-7 flex items-center gap-3" style={{ animationDelay: '0.14s' }}>
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[11.5px] uppercase tracking-[0.06em] text-ink-3">or</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+      <div className="animate-fade-up mt-5" style={{ animationDelay: '0.14s' }}>
+        <Button variant="ghost" onClick={() => navigate('/register')}>
+          Create Account
+        </Button>
+      </div>
+      <p className="animate-fade-up mt-7 text-center text-[13.5px] text-ink-2" style={{ animationDelay: '0.19s' }}>
+        New to SavvyTrade?{' '}
+        <Link to="/register" className="font-semibold text-blue1">
+          Get started free
+        </Link>
+      </p>
+    </div>
+  )
+}
