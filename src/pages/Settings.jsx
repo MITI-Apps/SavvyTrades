@@ -37,7 +37,7 @@ export default function Settings() {
 
   return (
     <div>
-      <h1 className="animate-fade-up font-display text-[22px] font-semibold">Settings</h1>
+      <h1 className="animate-fade-up font-display text-[22px] font-semibold">Profile</h1>
 
       <GlassCard className="animate-fade-up mt-5" style={{ animationDelay: '0.04s' }}>
         <div className="flex items-center gap-3.5 p-[18px]">
