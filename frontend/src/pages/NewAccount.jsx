@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../lib/api'
 import PageHeader from '../components/ui/PageHeader'
 import GlassCard from '../components/ui/GlassCard'
 import Input from '../components/ui/Input'
@@ -11,8 +12,36 @@ const types = ['Prop Firm', 'Personal', 'Demo', 'Managed']
 
 export default function NewAccount() {
   const navigate = useNavigate()
+  const [accountName, setAccountName] = useState('')
   const [market, setMarket] = useState('Forex')
   const [type, setType] = useState('Prop Firm')
+  const [startingBalance, setStartingBalance] = useState('')
+  const [currency, setCurrency] = useState('USD')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit() {
+    if (!accountName.trim()) {
+      setError('Account name is required')
+      return
+    }
+    setError('')
+    setSubmitting(true)
+    try {
+      await api.post('/trading-accounts', {
+        accountName: accountName.trim(),
+        market,
+        accountType: type,
+        startingBalance: startingBalance ? parseFloat(startingBalance) : 0,
+        currency: currency.trim().toUpperCase() || 'USD',
+      })
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div>
@@ -20,8 +49,19 @@ export default function NewAccount() {
         <PageHeader backTo="/accounts" title="New Account" sub="Set up a fresh trading ledger" />
       </div>
 
+      {error && (
+        <div className="animate-fade-up mt-4 rounded-2xl border border-rose/30 bg-rose/10 px-4 py-3 text-[13px] text-rose">
+          {error}
+        </div>
+      )}
+
       <GlassCard className="animate-fade-up mt-5 p-[18px]" style={{ animationDelay: '0.04s' }}>
-        <Input label="Account name" placeholder="e.g. Apex Capital — Live" />
+        <Input
+          label="Account name"
+          placeholder="e.g. Apex Capital — Live"
+          value={accountName}
+          onChange={(e) => setAccountName(e.target.value)}
+        />
       </GlassCard>
 
       <GlassCard className="animate-fade-up mt-4 p-[18px]" style={{ animationDelay: '0.09s' }}>
@@ -50,13 +90,26 @@ export default function NewAccount() {
 
       <GlassCard className="animate-fade-up mt-4 p-[18px]" style={{ animationDelay: '0.19s' }}>
         <div className="grid grid-cols-[1fr_104px] items-end gap-3">
-          <Input label="Starting balance" placeholder="100,000" />
-          <Input label="Currency" placeholder="USD" />
+          <Input
+            label="Starting balance"
+            placeholder="100,000"
+            type="number"
+            value={startingBalance}
+            onChange={(e) => setStartingBalance(e.target.value)}
+          />
+          <Input
+            label="Currency"
+            placeholder="USD"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+          />
         </div>
       </GlassCard>
 
       <div className="animate-fade-up mt-7" style={{ animationDelay: '0.24s' }}>
-        <Button onClick={() => navigate('/dashboard')}>Save Account</Button>
+        <Button onClick={handleSubmit} disabled={submitting}>
+          {submitting ? 'Saving…' : 'Save Account'}
+        </Button>
       </div>
     </div>
   )

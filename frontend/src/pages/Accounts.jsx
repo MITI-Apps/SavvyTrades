@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { IconPlus } from '../components/Icons'
 import Button from '../components/ui/Button'
 import StackedAtmCard from '../components/ui/StackedAtmCard'
-import { accounts } from '../data/accounts'
+import { useAccounts } from '../hooks/useData'
 
 const stackPos = [
   'top-0 z-30 -translate-x-1/2',
@@ -18,10 +18,41 @@ const shadows = [
 ]
 
 export default function Accounts() {
-  const [activeId, setActiveId] = useState(accounts[0].id)
-  const [selectedId, setSelectedId] = useState(accounts[0].id)
-  const selIdx = accounts.findIndex((a) => a.id === selectedId)
+  const { accounts, loading } = useAccounts()
+  const [activeId, setActiveId] = useState(null)
+  const [selectedId, setSelectedId] = useState(null)
+
+  const resolvedActive = activeId || accounts[0]?.id
+  const resolvedSelected = selectedId || accounts[0]?.id
+
+  const selIdx = accounts.findIndex((a) => a.id === resolvedSelected)
   const pos = (i) => (i - selIdx + accounts.length) % accounts.length
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center pt-16">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-blue1" />
+      </div>
+    )
+  }
+
+  if (accounts.length === 0) {
+    return (
+      <div className="relative flex flex-col items-center pt-16">
+        <Link
+          to="/new-account"
+          className="absolute right-0 top-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-border-strong bg-white/[0.07]"
+          aria-label="Add account"
+        >
+          <IconPlus className="text-ink" strokeWidth={2.2} />
+        </Link>
+        <div className="text-center">
+          <h1 className="font-display text-[20px] font-semibold">Your Accounts</h1>
+          <p className="mt-1 text-[12.5px] text-ink-3">No accounts yet. Create one to get started.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="relative flex flex-col items-center pt-16 pb-32">
@@ -48,7 +79,7 @@ export default function Accounts() {
           >
             <StackedAtmCard
               account={acc}
-              active={activeId === acc.id}
+              active={resolvedActive === acc.id}
               shadowClass={shadows[pos(i)]}
             />
           </button>
@@ -59,7 +90,7 @@ export default function Accounts() {
         <Button
           variant="ghost"
           className="mx-auto w-[305px] max-w-full"
-          onClick={() => setActiveId(selectedId)}
+          onClick={() => setActiveId(resolvedSelected)}
         >
           Set as Active Account
         </Button>

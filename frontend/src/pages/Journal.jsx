@@ -1,12 +1,27 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAccounts, useTrades } from '../hooks/useData'
+import { fmtDate, fmtTime, badgeFromSymbol, normalizeDirection, normalizeOutcome } from '../utils'
 import { IconPlus, IconSearch, IconFilter } from '../components/Icons'
 import TradeCard from '../components/ui/TradeCard'
-import { trades } from '../data/trades'
 
 export default function Journal() {
   const [query, setQuery] = useState('')
-  const filtered = trades.filter((t) =>
+  const { accounts } = useAccounts()
+  const { trades, loading } = useTrades(accounts[0]?.id)
+
+  const displayTrades = trades.map((t) => ({
+    ...t,
+    badge: badgeFromSymbol(t.symbol),
+    date: fmtDate(t.openedAt),
+    time: fmtTime(t.openedAt),
+    direction: normalizeDirection(t.direction),
+    outcome: normalizeOutcome(t.outcome),
+    pl: t.pnl,
+    reason: t.confluence,
+  }))
+
+  const filtered = displayTrades.filter((t) =>
     t.symbol.toLowerCase().includes(query.trim().toLowerCase()),
   )
 
@@ -43,13 +58,21 @@ export default function Journal() {
       </div>
 
       <div className="mt-5 flex flex-col gap-2.5">
-        {filtered.map((trade, i) => (
-          <TradeCard key={trade.id} trade={trade} delay={0.04 * i} />
-        ))}
-        {filtered.length === 0 && (
-          <div className="animate-fade-up rounded-3xl border border-border bg-gradient-to-b from-white/[0.07] to-white/[0.045] p-8 text-center text-sm text-ink-3">
-            No trades match “{query}”.
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-blue1" />
           </div>
+        ) : (
+          <>
+            {filtered.map((trade, i) => (
+              <TradeCard key={trade.id} trade={trade} delay={0.04 * i} />
+            ))}
+            {filtered.length === 0 && !loading && (
+              <div className="animate-fade-up rounded-3xl border border-border bg-gradient-to-b from-white/[0.07] to-white/[0.045] p-8 text-center text-sm text-ink-3">
+                {query ? `No trades match "${query}".` : 'No trades yet. Add your first trade!'}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

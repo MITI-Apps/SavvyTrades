@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { IconPlus, IconX } from '../Icons'
 import Button from './Button'
 import StackedAtmCard from './StackedAtmCard'
-import { accounts } from '../../data/accounts'
 
 const slots = [
   {
@@ -28,7 +27,7 @@ const shadows = [
 
 const dropDelays = ['0s', '0.08s', '0.16s']
 
-export default function AccountsWallet({ open, onClose, activeId, onSetActive }) {
+export default function AccountsWallet({ open, onClose, activeId, onSetActive, accounts = [] }) {
   const [selectedId, setSelectedId] = useState(activeId)
   const [dropped, setDropped] = useState(false)
 
@@ -99,7 +98,7 @@ export default function AccountsWallet({ open, onClose, activeId, onSetActive })
             <p className="mt-1 text-[12.5px] text-ink-3">Pick a card to make it active</p>
           </div>
 
-<div
+          <div
             className="animate-fade-up relative mx-auto mt-6 h-[330px] w-[305px] max-w-full"
             style={{ animationDelay: '0.08s' }}
           >

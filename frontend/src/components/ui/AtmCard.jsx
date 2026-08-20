@@ -1,3 +1,5 @@
+import { fmtCurrency, fmtPercent } from '../../utils'
+
 export default function AtmCard({
   name,
   balance,
@@ -8,6 +10,9 @@ export default function AtmCard({
   shadowClass = 'shadow-card',
 }) {
   const sm = size === 'sm'
+  const displayBalance = typeof balance === 'number' ? fmtCurrency(balance) : balance
+  const displayPl = typeof pl === 'number' ? fmtPercent(pl) : pl
+
   return (
     <div
       className={`relative overflow-hidden rounded-[32px] border border-white/10 atm-bg ${shadowClass} p-6 ${
@@ -41,7 +46,7 @@ export default function AtmCard({
           sm ? 'mt-1 text-[22px]' : 'mt-1.5 text-[32px]'
         }`}
       >
-        {balance}
+        {displayBalance}
       </div>
       <div
         className={`relative z-[1] flex items-end justify-between ${
@@ -51,9 +56,9 @@ export default function AtmCard({
         <div className={`font-semibold text-ink-2 ${sm ? 'text-[11.5px]' : 'text-[13px]'}`}>
           {name}
         </div>
-        {pl && (
+        {displayPl && (
           <div className={`font-bold ${sm ? 'text-[11px]' : 'text-[12.5px]'} ${plClass}`}>
-            {pl}
+            {displayPl}
           </div>
         )}
       </div>

@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useTrade } from '../hooks/useData'
+import { fmtPL, fmtDateTime, normalizeDirection, normalizeOutcome } from '../utils'
+import { api } from '../lib/api'
 import PageHeader from '../components/ui/PageHeader'
 import GlassCard from '../components/ui/GlassCard'
 import Pill from '../components/ui/Pill'
-import { fmtPL } from '../utils'
-import { trades } from '../data/trades'
 
 function Shot({ color, gradientId }) {
   return (
@@ -39,9 +41,26 @@ function InfoRow({ k, v, vClass = '' }) {
 
 export default function TradeDetail() {
   const { id } = useParams()
-  const trade = trades.find((t) => t.id === Number(id))
+  const { trade, loading, error } = useTrade(id)
+  const [screenshots, setScreenshots] = useState({ before: [], after: [] })
 
-  if (!trade) {
+  useEffect(() => {
+    if (!id) return
+    api
+      .get(`/trades/${id}/screenshots`)
+      .then((data) => setScreenshots({ before: data.before || [], after: data.after || [] }))
+      .catch(() => {})
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center py-24">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-blue1" />
+      </div>
+    )
+  }
+
+  if (error || !trade) {
     return (
       <div className="flex flex-col items-center py-24 text-center">
         <h1 className="font-display text-2xl font-semibold">Trade not found</h1>
@@ -56,8 +75,9 @@ export default function TradeDetail() {
     )
   }
 
-  const outcomeClass =
-    trade.outcome === 'win' ? 'mint' : trade.outcome === 'loss' ? 'rose' : 'amber'
+  const direction = normalizeDirection(trade.direction)
+  const outcome = normalizeOutcome(trade.outcome)
+  const outcomeClass = outcome === 'win' ? 'mint' : outcome === 'loss' ? 'rose' : 'amber'
 
   return (
     <div>
@@ -65,17 +85,17 @@ export default function TradeDetail() {
         <PageHeader
           backTo="/journal"
           title={trade.symbol}
-          sub={`${trade.dateFull} · ${trade.timeFull}`}
+          sub={trade.openedAt ? fmtDateTime(trade.openedAt) : ''}
         />
       </div>
 
       <GlassCard className="animate-fade-up mt-4 p-5" style={{ animationDelay: '0.04s' }}>
         <div className="flex items-center gap-2">
-          <Pill variant={trade.direction === 'buy' ? 'mint' : 'rose'}>
-            {trade.direction === 'buy' ? '▲ Buy' : '▼ Sell'}
+          <Pill variant={direction === 'buy' ? 'mint' : 'rose'}>
+            {direction === 'buy' ? '▲ Buy' : '▼ Sell'}
           </Pill>
           <Pill variant={outcomeClass} className="capitalize">
-            {trade.outcome}
+            {outcome === 'be' ? 'Break-even' : outcome}
           </Pill>
         </div>
         <div className="mt-4 text-[11.5px] font-semibold uppercase tracking-[0.05em] text-ink-3">
@@ -83,26 +103,26 @@ export default function TradeDetail() {
         </div>
         <div
           className={`mt-1 font-display text-[30px] font-semibold tabular-nums tracking-tight ${
-            trade.outcome === 'win'
+            outcome === 'win'
               ? 'text-mint'
-              : trade.outcome === 'loss'
+              : outcome === 'loss'
                 ? 'text-rose'
                 : 'text-amber'
           }`}
         >
-          {fmtPL(trade.pl)}
+          {fmtPL(trade.pnl ?? 0)}
         </div>
       </GlassCard>
 
       <GlassCard className="animate-fade-up mt-4 px-[18px] py-3" style={{ animationDelay: '0.09s' }}>
         <InfoRow k="Symbol" v={trade.symbol} />
-        <InfoRow k="Direction" v={trade.direction === 'buy' ? 'Buy' : 'Sell'} />
+        <InfoRow k="Direction" v={direction === 'buy' ? 'Buy' : 'Sell'} />
         <InfoRow
           k="Outcome"
-          v={trade.outcome === 'win' ? 'Win' : trade.outcome === 'loss' ? 'Loss' : 'Break-even'}
-          vClass={trade.outcome === 'loss' ? 'text-rose' : trade.outcome === 'win' ? 'text-mint' : 'text-amber'}
+          v={outcome === 'win' ? 'Win' : outcome === 'loss' ? 'Loss' : 'Break-even'}
+          vClass={outcome === 'loss' ? 'text-rose' : outcome === 'win' ? 'text-mint' : 'text-amber'}
         />
-        {trade.reason && <InfoRow k="Trade reason" v={trade.reason} />}
+        {trade.confluence && <InfoRow k="Trade reason" v={trade.confluence} />}
       </GlassCard>
 
       {trade.notes && (
@@ -115,18 +135,40 @@ export default function TradeDetail() {
       <div className="animate-fade-up mt-5" style={{ animationDelay: '0.22s' }}>
         <div className="font-display text-[15px] font-semibold">Screenshots</div>
         <div className="mt-2.5 grid grid-cols-2 gap-3">
-          <div className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#1c2230] to-[#141821]">
-            <Shot color="#3fd9ac" gradientId="shot-before" />
-            <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
-              Before
-            </span>
-          </div>
-          <div className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#1c2230] to-[#141821]">
-            <Shot color="#7c93ff" gradientId="shot-after" />
-            <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
-              After
-            </span>
-          </div>
+          {screenshots.before.length > 0 ? (
+            screenshots.before.map((s) => (
+              <a key={s.id} href={s.url} target="_blank" rel="noopener noreferrer" className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border">
+                <img src={s.url} alt={s.caption || 'Before'} className="h-full w-full object-cover" />
+                <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
+                  Before
+                </span>
+              </a>
+            ))
+          ) : (
+            <div className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#1c2230] to-[#141821]">
+              <Shot color="#3fd9ac" gradientId="shot-before" />
+              <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
+                Before
+              </span>
+            </div>
+          )}
+          {screenshots.after.length > 0 ? (
+            screenshots.after.map((s) => (
+              <a key={s.id} href={s.url} target="_blank" rel="noopener noreferrer" className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border">
+                <img src={s.url} alt={s.caption || 'After'} className="h-full w-full object-cover" />
+                <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
+                  After
+                </span>
+              </a>
+            ))
+          ) : (
+            <div className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#1c2230] to-[#141821]">
+              <Shot color="#7c93ff" gradientId="shot-after" />
+              <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
+                After
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
