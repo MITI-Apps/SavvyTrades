@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import AppShell from './components/layout/AppShell'
 import AuthLayout from './components/layout/AuthLayout'
+import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import NewAccount from './pages/NewAccount'
@@ -20,16 +21,18 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
-      <Route element={<AppShell withNav />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/journal" element={<Journal />} />
-        <Route path="/add-trade" element={<AddTrade />} />
-        <Route path="/settings" element={<Settings />} />
-      </Route>
-      <Route element={<AppShell />}>
-        <Route path="/new-account" element={<NewAccount />} />
-        <Route path="/accounts" element={<Accounts />} />
-        <Route path="/trade/:id" element={<TradeDetail />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppShell withNav />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/journal" element={<Journal />} />
+          <Route path="/add-trade" element={<AddTrade />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+        <Route element={<AppShell />}>
+          <Route path="/new-account" element={<NewAccount />} />
+          <Route path="/accounts" element={<Accounts />} />
+          <Route path="/trade/:id" element={<TradeDetail />} />
+        </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

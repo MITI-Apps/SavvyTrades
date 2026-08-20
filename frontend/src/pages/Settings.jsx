@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import GlassCard from '../components/ui/GlassCard'
 import {
   IconBell,
@@ -34,6 +35,19 @@ function SettingsItem({ icon: Icon, title, sub, danger = false, onClick, delay =
 
 export default function Settings() {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
+
+  const initials = user?.name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || '??'
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <div>
@@ -42,11 +56,11 @@ export default function Settings() {
       <GlassCard className="animate-fade-up mt-5" style={{ animationDelay: '0.04s' }}>
         <div className="flex items-center gap-3.5 p-[18px]">
           <div className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-blue1 to-blue2 font-display text-[19px] font-bold text-[#0b0d13]">
-            AM
+            {initials}
           </div>
           <div>
-            <div className="text-[15.5px] font-bold">Alex Morgan</div>
-            <div className="mt-0.5 text-[12.5px] text-ink-3">alex.morgan@email.com</div>
+            <div className="text-[15.5px] font-bold">{user?.name || 'Unknown'}</div>
+            <div className="mt-0.5 text-[12.5px] text-ink-3">{user?.email || ''}</div>
           </div>
           <IconChevronRight width={16} height={16} className="ml-auto text-ink-2" />
         </div>
@@ -63,7 +77,7 @@ export default function Settings() {
           icon={IconLogout}
           title="Log Out"
           danger
-          onClick={() => navigate('/login')}
+          onClick={handleLogout}
         />
       </GlassCard>
 

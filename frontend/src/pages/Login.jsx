@@ -1,12 +1,32 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import { IconMail, IconLock, IconCheck, LogoMark } from '../components/Icons'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 
 export default function Login() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [remember, setRemember] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError('')
+    setSubmitting(true)
+    try {
+      await login(email, password)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="my-auto w-full py-10">
@@ -22,18 +42,30 @@ export default function Login() {
       <form
         className="animate-fade-up mt-9 flex flex-col gap-4"
         style={{ animationDelay: '0.09s' }}
-        onSubmit={(e) => {
-          e.preventDefault()
-          navigate('/dashboard')
-        }}
+        onSubmit={handleSubmit}
       >
-        <Input label="Email" icon={IconMail} type="email" placeholder="you@email.com" required />
+        {error && (
+          <div className="rounded-2xl border border-rose/30 bg-rose/10 px-4 py-3 text-[13px] text-rose">
+            {error}
+          </div>
+        )}
+        <Input
+          label="Email"
+          icon={IconMail}
+          type="email"
+          placeholder="you@email.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
         <Input
           label="Password"
           icon={IconLock}
           type="password"
           placeholder="••••••••"
           required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <div className="flex items-center justify-between">
           <button
@@ -60,8 +92,8 @@ export default function Login() {
             Forgot password?
           </a>
         </div>
-        <Button type="submit" className="mt-2">
-          Log In
+        <Button type="submit" className="mt-2" disabled={submitting}>
+          {submitting ? 'Logging in…' : 'Log In'}
         </Button>
       </form>
       <div className="animate-fade-up mt-7 flex items-center gap-3" style={{ animationDelay: '0.14s' }}>

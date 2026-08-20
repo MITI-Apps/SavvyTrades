@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../lib/api'
+import { useAccounts } from '../hooks/useData'
 import { IconCamera, IconX } from '../components/Icons'
 import PageHeader from '../components/ui/PageHeader'
 import GlassCard from '../components/ui/GlassCard'
@@ -18,7 +20,7 @@ function UploadBox({ filename, onFile }) {
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => onFile(e.target.files[0]?.name || '')}
+        onChange={(e) => onFile(e.target.files[0] || null)}
       />
     </label>
   )
@@ -26,10 +28,62 @@ function UploadBox({ filename, onFile }) {
 
 export default function AddTrade() {
   const navigate = useNavigate()
+  const { accounts } = useAccounts()
+  const [symbol, setSymbol] = useState('')
   const [direction, setDirection] = useState('buy')
   const [outcome, setOutcome] = useState('win')
-  const [beforeName, setBeforeName] = useState('')
-  const [afterName, setAfterName] = useState('')
+  const [pnl, setPnl] = useState('')
+  const [reason, setReason] = useState('')
+  const [notes, setNotes] = useState('')
+  const [accountId, setAccountId] = useState('')
+  const [beforeFile, setBeforeFile] = useState(null)
+  const [afterFile, setAfterFile] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  const activeAccountId = accountId || accounts[0]?.id || ''
+
+  async function handleSubmit() {
+    if (!symbol.trim() || !activeAccountId) {
+      setError('Please fill in symbol and select an account')
+      return
+    }
+    setError('')
+    setSubmitting(true)
+    try {
+      const outcomeMap = { win: 'WIN', loss: 'LOSS', be: 'BREAK_EVEN' }
+      const tradeData = {
+        tradingAccountId: activeAccountId,
+        symbol: symbol.trim().toUpperCase(),
+        direction: direction.toUpperCase(),
+        outcome: outcomeMap[outcome] || 'WIN',
+        pnl: pnl ? parseFloat(pnl) : 0,
+        confluence: reason || undefined,
+        notes: notes || undefined,
+        openedAt: new Date().toISOString(),
+      }
+      const result = await api.post('/trades', tradeData)
+
+      if (beforeFile && result.trade) {
+        const fd = new FormData()
+        fd.append('image', beforeFile)
+        fd.append('screenshotType', 'BEFORE')
+        api.upload(`/trades/${result.trade.id}/screenshots`, fd).catch(() => {})
+      }
+      if (afterFile && result.trade) {
+        const fd = new FormData()
+        fd.append('image', afterFile)
+        fd.append('screenshotType', 'AFTER')
+        api.upload(`/trades/${result.trade.id}/screenshots`, fd).catch(() => {})
+      }
+
+      navigate('/journal')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div>
@@ -38,12 +92,36 @@ export default function AddTrade() {
           backTo="/dashboard"
           icon={IconX}
           title="Add Trade"
-          sub="Apex Capital — Live 01"
+          sub={accounts.find((a) => a.id === activeAccountId)?.name || 'Select an account'}
         />
       </div>
 
+      {error && (
+        <div className="animate-fade-up mt-4 rounded-2xl border border-rose/30 bg-rose/10 px-4 py-3 text-[13px] text-rose">
+          {error}
+        </div>
+      )}
+
+      {accounts.length > 1 && (
+        <GlassCard className="animate-fade-up mt-5 p-[18px]" style={{ animationDelay: '0.02s' }}>
+          <span className="mb-2 block text-xs font-semibold tracking-wide text-ink-2">Account</span>
+          <div className="mt-2 grid grid-cols-2 gap-2.5">
+            {accounts.map((a) => (
+              <OptionChip key={a.id} selected={activeAccountId === a.id} onClick={() => setAccountId(a.id)}>
+                {a.name}
+              </OptionChip>
+            ))}
+          </div>
+        </GlassCard>
+      )}
+
       <GlassCard className="animate-fade-up mt-5 p-[18px]" style={{ animationDelay: '0.04s' }}>
-        <Input label="Pair / Symbol" placeholder="e.g. XAUUSD" />
+        <Input
+          label="Pair / Symbol"
+          placeholder="e.g. XAUUSD"
+          value={symbol}
+          onChange={(e) => setSymbol(e.target.value)}
+        />
         <div className="mt-4">
           <span className="mb-2 block text-xs font-semibold tracking-wide text-ink-2">
             Direction
@@ -86,17 +164,31 @@ export default function AddTrade() {
           </OptionChip>
         </div>
         <div className="mt-4">
-          <Input label="Profit / Loss ($)" placeholder="842.50" type="number" step="0.01" />
+          <Input
+            label="Profit / Loss ($)"
+            placeholder="842.50"
+            type="number"
+            step="0.01"
+            value={pnl}
+            onChange={(e) => setPnl(e.target.value)}
+          />
         </div>
       </GlassCard>
 
       <GlassCard className="animate-fade-up mt-4 p-[18px]" style={{ animationDelay: '0.14s' }}>
-        <Input label="Trade reason" placeholder="e.g. Order block retest" />
+        <Input
+          label="Trade reason"
+          placeholder="e.g. Order block retest"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
         <div className="mt-4">
           <span className="mb-2 block text-xs font-semibold tracking-wide text-ink-2">Notes</span>
           <textarea
             className="min-h-[88px] w-full resize-none rounded-[18px] border border-border bg-surface-2 px-4 py-[15px] text-[15px] text-ink outline-none transition placeholder:text-ink-3 focus:border-blue1 focus:ring-4 focus:ring-blue1/15"
             placeholder="Context, emotions, execution quality…"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
       </GlassCard>
@@ -105,18 +197,20 @@ export default function AddTrade() {
         <span className="mb-3 block text-xs font-semibold tracking-wide text-ink-2">
           Before-trade screenshot
         </span>
-        <UploadBox filename={beforeName} onFile={setBeforeName} />
+        <UploadBox filename={beforeFile?.name || ''} onFile={setBeforeFile} />
       </GlassCard>
 
       <GlassCard className="animate-fade-up mt-4 p-[18px]" style={{ animationDelay: '0.19s' }}>
         <span className="mb-3 block text-xs font-semibold tracking-wide text-ink-2">
           After-trade screenshot
         </span>
-        <UploadBox filename={afterName} onFile={setAfterName} />
+        <UploadBox filename={afterFile?.name || ''} onFile={setAfterFile} />
       </GlassCard>
 
       <div className="animate-fade-up mt-7" style={{ animationDelay: '0.24s' }}>
-        <Button onClick={() => navigate('/journal')}>Save Trade</Button>
+        <Button onClick={handleSubmit} disabled={submitting}>
+          {submitting ? 'Saving…' : 'Save Trade'}
+        </Button>
       </div>
     </div>
   )
