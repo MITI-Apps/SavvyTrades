@@ -20,13 +20,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(generalLimiter);
 
-//Authentication Routes
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/trading-accounts', tradingAccountRoutes);
-app.use('/api/v1/trades', tradeRoutes);
-app.use('/api/v1', screenshotRoutes);
-app.use('/api/v1', dashboardRoutes);
-
 app.get('/api/v1/health', (req: Request, res: Response) => {
    res.status(200).json({
     status: 'success',
@@ -34,6 +27,13 @@ app.get('/api/v1/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
    });
 });
+
+//Authentication Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/trading-accounts', tradingAccountRoutes);
+app.use('/api/v1/trades', tradeRoutes);
+app.use('/api/v1', screenshotRoutes);
+app.use('/api/v1', dashboardRoutes);
 
 app.use(errorHandler);
 
