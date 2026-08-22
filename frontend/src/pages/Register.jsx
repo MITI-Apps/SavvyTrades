@@ -14,6 +14,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [registered, setRegistered] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -25,12 +26,36 @@ export default function Register() {
     setSubmitting(true)
     try {
       await register(name, email, password)
-      navigate('/login')
+      setRegistered(true)
     } catch (err) {
       setError(err.message)
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (registered) {
+    return (
+      <div className="my-auto w-full py-10 text-center">
+        <div className="animate-fade-up" style={{ animationDelay: '0.04s' }}>
+          <h1 className="font-display text-[26px] font-semibold tracking-tight">
+            Check your email
+          </h1>
+          <p className="mt-2 text-[13.5px] text-ink-2">
+            We've sent a verification link to <strong className="text-ink">{email}</strong>.
+            Click the link in the email to verify your account.
+          </p>
+        </div>
+        <div className="animate-fade-up rounded-2xl border border-blue1/30 bg-blue1/10 px-4 py-3 text-[13px] text-blue1" style={{ animationDelay: '0.09s' }}>
+          Didn't get the email? Check your spam folder or try logging in — you can resend the verification from there.
+        </div>
+        <div className="animate-fade-up mt-9" style={{ animationDelay: '0.14s' }}>
+          <Link to="/login">
+            <Button>Go to Login</Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (

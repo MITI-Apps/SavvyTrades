@@ -13,10 +13,15 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState('')
+
+  const isUnverified = error.toLowerCase().includes('verify your email')
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setResendMsg('')
     setSubmitting(true)
     try {
       await login(email, password)
@@ -25,6 +30,31 @@ export default function Login() {
       setError(err.message)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleResendVerification() {
+    if (!email) {
+      setError('Enter your email above first')
+      return
+    }
+    setResending(true)
+    setResendMsg('')
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || ''}/api/v1/auth/resend-verification`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        }
+      )
+      const data = await res.json()
+      setResendMsg(data.message || 'Verification link sent.')
+    } catch {
+      setResendMsg('Failed to resend. Please try again.')
+    } finally {
+      setResending(false)
     }
   }
 
@@ -47,6 +77,21 @@ export default function Login() {
         {error && (
           <div className="rounded-2xl border border-rose/30 bg-rose/10 px-4 py-3 text-[13px] text-rose">
             {error}
+            {isUnverified && (
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="ml-1 font-semibold underline hover:text-rose/80 disabled:opacity-50"
+              >
+                {resending ? 'Sending…' : 'Resend verification email'}
+              </button>
+            )}
+          </div>
+        )}
+        {resendMsg && (
+          <div className="rounded-2xl border border-blue1/30 bg-blue1/10 px-4 py-3 text-[13px] text-blue1">
+            {resendMsg}
           </div>
         )}
         <Input
@@ -84,13 +129,12 @@ export default function Login() {
             </span>
             Remember me
           </button>
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
+          <Link
+            to="/forgot-password"
             className="text-[13.5px] font-semibold text-blue1"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
         <Button type="submit" className="mt-2" disabled={submitting}>
           {submitting ? 'Logging in…' : 'Log In'}
