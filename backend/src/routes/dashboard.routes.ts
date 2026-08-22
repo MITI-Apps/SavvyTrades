@@ -6,10 +6,11 @@ import {
   getUserAccounts,
 } from '../controllers/dashboard.controller.js';
 import  authJwt  from '../middleware/auth.middleware.js';
+import requireVerified from '../middleware/requireVerified.js';
 
 const router = Router();
 
-router.use(authJwt);
+router.use(authJwt, requireVerified);
 
 // Accounts list (Account Switcher)
 router.get('/accounts', getUserAccounts);
