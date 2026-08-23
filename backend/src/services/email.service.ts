@@ -10,6 +10,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const verifyTransporter = async (): Promise<void> => {
+  try {
+    await transporter.verify();
+    console.log('✅ Email transporter verified successfully');
+  } catch (error) {
+    console.error('❌ Email transporter verification failed:', error);
+  }
+};
+
 const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM || 'noreply@savvytrades.com',
@@ -125,4 +134,4 @@ const sendPasswordResetEmail = async (email: string, name: string, token: string
   await sendEmail(email, 'Reset your SavvyTrade password', html);
 };
 
-export { sendVerificationEmail, sendPasswordResetEmail };
+export { sendVerificationEmail, sendPasswordResetEmail, verifyTransporter };
