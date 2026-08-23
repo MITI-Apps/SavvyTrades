@@ -52,4 +52,39 @@ const changePasswordSchema = Joi.object({
   }),
 });
 
-export {createUserSchema, loginUserSchema, updateProfileSchema, changePasswordSchema};
+// Forgot Password Schema
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'any.required': 'Email is required',
+    'string.email': 'Please provide a valid email',
+  }),
+});
+
+// Reset Password Schema
+const resetPasswordSchema = Joi.object({
+  token: Joi.string().required().messages({
+    'any.required': 'Token is required',
+  }),
+  newPassword: Joi.string().min(6).required().messages({
+    'any.required': 'New password is required',
+    'string.min': 'New password must be at least 6 characters',
+  }),
+});
+
+// Resend Verification Schema
+const resendVerificationSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'any.required': 'Email is required',
+    'string.email': 'Please provide a valid email',
+  }),
+});
+
+export {
+  createUserSchema,
+  loginUserSchema,
+  updateProfileSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  resendVerificationSchema,
+};

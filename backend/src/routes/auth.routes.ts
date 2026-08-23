@@ -1,20 +1,40 @@
 import express from "express";
 const router = express.Router();
-import { registerUser, loginUser, getMe, updateProfile, changePassword } from '../controllers/auth.controller.js';
+import {
+  registerUser,
+  loginUser,
+  verifyEmail,
+  resendVerification,
+  forgotPassword,
+  resetPassword,
+  getMe,
+  updateProfile,
+  changePassword,
+} from '../controllers/auth.controller.js';
 import { validate } from "../middleware/validate.js";
-import {createUserSchema, loginUserSchema, updateProfileSchema, changePasswordSchema} from "../validators/auth.validator.js"
+import {
+  createUserSchema,
+  loginUserSchema,
+  updateProfileSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  resendVerificationSchema,
+} from "../validators/auth.validator.js"
 import authJwt from "../middleware/auth.middleware.js";
 import { authLimiter } from "../middleware/rateLimit.middleware.js";
 
+// Public routes
 router.post('/register', authLimiter, validate(createUserSchema), registerUser);
-
 router.post('/login', authLimiter, validate(loginUserSchema), loginUser);
+router.get('/verify-email', verifyEmail);
+router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), forgotPassword);
+router.post('/reset-password', authLimiter, validate(resetPasswordSchema), resetPassword);
+router.post('/resend-verification', authLimiter, validate(resendVerificationSchema), resendVerification);
 
 // Protected routes
 router.get('/me', authJwt, getMe);
 router.put('/update-profile', authJwt, validate(updateProfileSchema), updateProfile);
 router.put('/change-password', authJwt, validate(changePasswordSchema), changePassword);
-
-
 
 export default router;

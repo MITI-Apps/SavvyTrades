@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import User from "../models/User.js";
 import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
+import { generateToken, verifyToken } from "../services/token.service.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../services/email.service.js";
 
 
 const registerUser = async (req: Request, res: Response) => {
@@ -22,16 +24,14 @@ const registerUser = async (req: Request, res: Response) => {
       password: hashedPassword,
     });
 
+    const token = await generateToken(user.id, 'email_verify');
+    await sendVerificationEmail(user.email, user.name, token);
+
     res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+      message: 'Registration successful. Please check your email to verify your account.',
     });
   } catch (error) {
-    console.error(error);
+    console.error('Registration error:', error);
     res.status(500).json({ error: 'Failed to register user' });
   }
 };
@@ -44,6 +44,11 @@ const loginUser = async (req: Request, res: Response) => {
     if (!user){
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    if (!user.verified) {
+      return res.status(403).json({ error: 'Please verify your email before logging in' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch){
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -62,6 +67,102 @@ const loginUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to login' });
+  }
+};
+
+const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.query;
+
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'Token is required' });
+    }
+
+    const userId = await verifyToken(token, 'email_verify');
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid or expired verification token' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.verified = true;
+    await user.save();
+
+    res.status(200).json({ message: 'Email verified successfully. You can now log in.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to verify email' });
+  }
+};
+
+const resendVerification = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      // Prevent email enumeration
+      return res.status(200).json({ message: 'If that email exists, a verification link has been sent.' });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ error: 'This email is already verified' });
+    }
+
+    const token = await generateToken(user.id, 'email_verify');
+    await sendVerificationEmail(user.email, user.name, token);
+
+    res.status(200).json({ message: 'If that email exists, a verification link has been sent.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to resend verification email' });
+  }
+};
+
+const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      // Prevent email enumeration
+      return res.status(200).json({ message: 'If that email exists, a password reset link has been sent.' });
+    }
+
+    const token = await generateToken(user.id, 'password_reset');
+    await sendPasswordResetEmail(user.email, user.name, token);
+
+    res.status(200).json({ message: 'If that email exists, a password reset link has been sent.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to process forgot password request' });
+  }
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    const userId = await verifyToken(token, 'password_reset');
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful. You can now log in with your new password.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to reset password' });
   }
 };
 
@@ -149,4 +250,4 @@ const changePassword = async (req: Request, res: Response) => {
   }
 }
 
-export { registerUser, loginUser, getMe, updateProfile, changePassword };
+export { registerUser, loginUser, verifyEmail, resendVerification, forgotPassword, resetPassword, getMe, updateProfile, changePassword };

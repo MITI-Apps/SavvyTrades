@@ -12,8 +12,13 @@ import "./models/index.js"
 
 const app = express();
 
+const allowedOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 const corsOptions = process.env.NODE_ENV === 'production'
-  ? { origin: process.env.CLIENT_URL || '', credentials: true }
+  ? { origin: allowedOrigins.length > 0 ? allowedOrigins : false, credentials: true }
   : { origin: '*' };
 
 app.use(cors(corsOptions));

@@ -6,12 +6,13 @@ import {
 } from '../controllers/screenshot.controller.js';
 import  upload  from '../middleware/upload.middleware.js';
 import  authJwt  from '../middleware/auth.middleware.js';
+import requireVerified from '../middleware/requireVerified.js';
 import { validate, validateParams } from '../middleware/validate.js';
 import { deleteScreenshotParamSchema, uploadScreenshotSchema, screenshotTradeIdParamSchema } from '../validators/screenshot.validator.js';
 
 const router = Router();
 
-router.use(authJwt);
+router.use(authJwt, requireVerified);
 
 // GET screenshots for a trade
 router.get('/trades/:tradeId/screenshots',validateParams(screenshotTradeIdParamSchema), getTradeScreenshots);

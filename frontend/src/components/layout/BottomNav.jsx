@@ -1,14 +1,23 @@
 import { Link, useLocation } from 'react-router-dom'
 import { IconGrid, IconJournal, IconPlus } from '../Icons'
-
-const items = [
-  { to: '/dashboard', label: 'Dashboard', icon: IconGrid },
-  { to: '/add-trade', label: 'Add', icon: IconPlus, center: true },
-  { to: '/journal', label: 'Journal', icon: IconJournal },
-]
+import { useAccounts } from '../../hooks/useData'
 
 export default function BottomNav() {
   const { pathname } = useLocation()
+  const { accounts, loading } = useAccounts()
+  const needsAccount = !loading && accounts.length === 0
+
+  const items = [
+    { to: '/dashboard', label: 'Dashboard', icon: IconGrid },
+    {
+      to: needsAccount ? '/new-account' : '/add-trade',
+      label: 'Add',
+      icon: IconPlus,
+      center: true,
+    },
+    { to: '/journal', label: 'Journal', icon: IconJournal },
+  ]
+
   const isActive = (to) =>
     to === '/journal'
       ? pathname.startsWith('/journal') || pathname.startsWith('/trade')

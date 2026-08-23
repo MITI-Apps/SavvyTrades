@@ -3,10 +3,11 @@ import { createTrade, getTrades, getTradeById, updateTrade, deleteTrade } from '
 import { createTradeSchema, getTradesQuerySchema, tradeIdParamSchema, updateTradeSchema } from '../validators/trade.validator.js';
 import { validate, validateQuery, validateParams } from '../middleware/validate.js';
 import  authJwt  from '../middleware/auth.middleware.js';
+import requireVerified from '../middleware/requireVerified.js';
 
 const router = Router();
 
-router.use(authJwt);
+router.use(authJwt, requireVerified);
 
 router.post('/', validate(createTradeSchema), createTrade);
 

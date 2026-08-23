@@ -3,11 +3,12 @@ import { createTradingAccount, getAllTradingAccounts, getTradingAccountById, upd
 import { createTradingAccountSchema, accountIdParamSchema, updateTradingAccountSchema } from '../validators/tradingAccount.validator.js';
 import { validate, validateParams } from "../middleware/validate.js";
 import  authJwt  from '../middleware/auth.middleware.js';
+import requireVerified from '../middleware/requireVerified.js';
 
 const router = Router();
 
-// All trading account routes require authentication
-router.use(authJwt);
+// All trading account routes require authentication and email verification
+router.use(authJwt, requireVerified);
 
 // Create Account
 router.post('/', validate(createTradingAccountSchema), createTradingAccount);

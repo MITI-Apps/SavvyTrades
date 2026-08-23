@@ -6,6 +6,7 @@ class User extends Model {
     declare name: string;
     declare email: string;
     declare password: string;
+    declare verified: boolean;
     declare readonly createdAt: Date;
     declare readonly updatedAt: Date;
 }
@@ -32,6 +33,11 @@ User.init(
     password: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
     },
   },
   {
