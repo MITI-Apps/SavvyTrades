@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { LogoMark } from '../components/Icons'
+import { LogoMark, IconMail } from '../components/Icons'
 import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams()
   const [status, setStatus] = useState('loading')
   const [message, setMessage] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState('')
+  const [resendEmail, setResendEmail] = useState('')
+
+  const token = searchParams.get('token')
 
   useEffect(() => {
-    const token = searchParams.get('token')
     if (!token) {
       setStatus('error')
       setMessage('No verification token provided.')
@@ -29,6 +34,29 @@ export default function VerifyEmail() {
       })
   }, [searchParams])
 
+  async function handleResendVerification(e) {
+    e.preventDefault()
+    if (!resendEmail) return
+    setResending(true)
+    setResendMsg('')
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || ''}/api/v1/auth/resend-verification`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: resendEmail }),
+        }
+      )
+      const data = await res.json()
+      setResendMsg(data.message || 'Verification link sent. Check your inbox.')
+    } catch {
+      setResendMsg('Failed to resend. Please try again.')
+    } finally {
+      setResending(false)
+    }
+  }
+
   return (
     <div className="my-auto w-full py-10">
       <div className="animate-fade-up flex justify-center">
@@ -45,9 +73,30 @@ export default function VerifyEmail() {
         <p className="mt-2 text-[13.5px] text-ink-2">{message}</p>
       </div>
       {status !== 'loading' && (
-        <div className="animate-fade-up mt-9" style={{ animationDelay: '0.09s' }}>
+        <div className="animate-fade-up mt-9 flex flex-col items-center gap-3" style={{ animationDelay: '0.09s' }}>
+          {status === 'error' && (
+            <form onSubmit={handleResendVerification} className="w-full max-w-sm flex flex-col gap-3">
+              <Input
+                label="Email"
+                icon={IconMail}
+                type="email"
+                placeholder="you@email.com"
+                required
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+              />
+              <Button type="submit" disabled={resending} className="w-full">
+                {resending ? 'Sending…' : 'Resend Verification Email'}
+              </Button>
+              {resendMsg && (
+                <div className="rounded-2xl border border-blue1/30 bg-blue1/10 px-4 py-3 text-[13px] text-blue1">
+                  {resendMsg}
+                </div>
+              )}
+            </form>
+          )}
           <Link to="/login">
-            <Button>Go to Login</Button>
+            <Button variant="ghost">Go to Login</Button>
           </Link>
         </div>
       )}
