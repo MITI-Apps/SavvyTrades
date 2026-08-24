@@ -1,32 +1,52 @@
-import nodemailer from 'nodemailer';
+import { MailtrapClient } from 'mailtrap';
+import { BrevoClient } from '@getbrevo/brevo';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const isProduction = process.env.NODE_ENV === 'production';
 
-const verifyTransporter = async (): Promise<void> => {
-  try {
-    await transporter.verify();
-    console.log('✅ Email transporter verified successfully');
-  } catch (error) {
-    console.error('❌ Email transporter verification failed:', error);
-  }
-};
+let sendEmailFn: (to: string, subject: string, html: string) => Promise<void>;
 
-const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || 'noreply@savvytrades.com',
-    to,
-    subject,
-    html,
-  });
-};
+if (isProduction) {
+  const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY! });
+
+  sendEmailFn = async (to, subject, html) => {
+    try {
+      await brevo.transactionalEmails.sendTransacEmail({
+        subject,
+        htmlContent: html,
+        sender: {
+          name: 'SavvyTrade',
+          email: process.env.BREVO_SENDER_EMAIL!,
+        },
+        to: [{ email: to }],
+      });
+    } catch (error) {
+      console.error('Error sending email via Brevo:', error);
+      throw new Error('EMAIL_SENDING_FAILED');
+    }
+  };
+} else {
+  const mailtrap = new MailtrapClient(
+    { 
+      token: process.env.MAILTRAP_API_TOKEN!,
+      sandbox: true,
+      testInboxId: 4872384,
+    }
+  );
+
+  sendEmailFn = async (to, subject, html) => {
+    try {
+    await mailtrap.send({
+      from: { name: 'SavvyTrade', email: 'mailtrap@demomailtrap.co' },
+      to: [{ email: to }],
+      subject,
+      html,
+    });
+    } catch (error) {
+      console.error('Error sending email via Mailtrap:', error);
+      throw new Error('EMAIL_SENDING_FAILED');
+    }
+  };
+}
 
 const sendVerificationEmail = async (email: string, name: string, token: string): Promise<void> => {
   const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
@@ -78,7 +98,7 @@ const sendVerificationEmail = async (email: string, name: string, token: string)
     </html>
   `;
 
-  await sendEmail(email, 'Verify your SavvyTrade account', html);
+  await sendEmailFn(email, 'Verify your SavvyTrade account', html);
 };
 
 const sendPasswordResetEmail = async (email: string, name: string, token: string): Promise<void> => {
@@ -131,7 +151,7 @@ const sendPasswordResetEmail = async (email: string, name: string, token: string
     </html>
   `;
 
-  await sendEmail(email, 'Reset your SavvyTrade password', html);
+  await sendEmailFn(email, 'Reset your SavvyTrade password', html);
 };
 
-export { sendVerificationEmail, sendPasswordResetEmail, verifyTransporter };
+export { sendVerificationEmail, sendPasswordResetEmail };

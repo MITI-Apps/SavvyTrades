@@ -88,8 +88,7 @@ const verifyEmail = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    user.verified = true;
-    await user.save();
+    await user.update({ verified: true });
 
     res.status(200).json({ message: 'Email verified successfully. You can now log in.' });
   } catch (error) {
