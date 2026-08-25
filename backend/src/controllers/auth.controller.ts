@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import bcrypt from 'bcrypt';
 import User from "../models/User.js";
 import jwt from 'jsonwebtoken';
@@ -7,7 +7,7 @@ import { generateToken, verifyToken } from "../services/token.service.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "../services/email.service.js";
 
 
-const registerUser = async (req: Request, res: Response) => {
+const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
 
@@ -31,12 +31,11 @@ const registerUser = async (req: Request, res: Response) => {
       message: 'Registration successful. Please check your email to verify your account.',
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Failed to register user' });
+    next(error);
   }
 };
 
-const loginUser = async (req: Request, res: Response) => {
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     
@@ -65,12 +64,11 @@ const loginUser = async (req: Request, res: Response) => {
     
     res.status(200).json({ message: 'Login successful', token});
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to login' });
+    next(error);
   }
 };
 
-const verifyEmail = async (req: Request, res: Response) => {
+const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token } = req.query;
 
@@ -92,12 +90,11 @@ const verifyEmail = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Email verified successfully. You can now log in.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to verify email' });
+    next(error);
   }
 };
 
-const resendVerification = async (req: Request, res: Response) => {
+const resendVerification = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
 
@@ -116,12 +113,11 @@ const resendVerification = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'If that email exists, a verification link has been sent.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to resend verification email' });
+    next(error);
   }
 };
 
-const forgotPassword = async (req: Request, res: Response) => {
+const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
 
@@ -136,12 +132,11 @@ const forgotPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'If that email exists, a password reset link has been sent.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to process forgot password request' });
+    next(error);
   }
 };
 
-const resetPassword = async (req: Request, res: Response) => {
+const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token, newPassword } = req.body;
 
@@ -160,12 +155,11 @@ const resetPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Password reset successful. You can now log in with your new password.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to reset password' });
+    next(error);
   }
 };
 
-const getMe = async (req: Request, res: Response) => {
+const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId
     const user = await User.findByPk(userId, {
@@ -178,12 +172,11 @@ const getMe = async (req: Request, res: Response) => {
 
     return res.status(200).json({  user });
   }catch(error){
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch user profile'})
+    next(error);
   }
 };
 
-const updateProfile = async (req: Request, res: Response) => {
+const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
   try{
     const { name, email } = req.body
     const userId = req.auth?.userId
@@ -220,11 +213,11 @@ const updateProfile = async (req: Request, res: Response) => {
     });
 
   }catch (error){
-    res.status(500).json({ error: 'Failed to update profile' })
+    next(error);
   }
 };
 
-const changePassword = async (req: Request, res: Response) => {
+const changePassword = async (req: Request, res: Response, next: NextFunction) => {
   try{
     const userId = req.auth?.userId;
     const { currentPassword, newPassword } = req.body;
@@ -245,7 +238,7 @@ const changePassword = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (error){
-    res.status(500).json({ error: "Failed to change password"})
+    next(error);
   }
 }
 

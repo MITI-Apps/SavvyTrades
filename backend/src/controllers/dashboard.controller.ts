@@ -1,11 +1,11 @@
-import type { Response, Request } from 'express';
+import type { Response, Request, NextFunction } from 'express';
 import { calculateDashboardData, round2 } from '../services/dashboard.service.js';
 import  TradingAccount  from '../models/TradingAccount.js';
 import Trade from '../models/Trades.js';
 import { Op } from 'sequelize';
 
 // Composed Full Dashboard Endpoint
-export const getDashboard = async (req: Request, res: Response) => {
+export const getDashboard = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId!;
     const { accountId } = req.params;
@@ -16,12 +16,12 @@ export const getDashboard = async (req: Request, res: Response) => {
     if (error.message === 'ACCOUNT_NOT_FOUND') {
       return res.status(404).json({ error: 'Trading account not found or access denied' });
     }
-    res.status(500).json({ error: 'Failed to load dashboard data' });
+    next(error);
   }
 };
 
 // Standalone Performance Stats
-export const getAccountStats = async (req: Request, res: Response) => {
+export const getAccountStats = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId!;
     const { accountId } = req.params;
@@ -32,12 +32,12 @@ export const getAccountStats = async (req: Request, res: Response) => {
     if (error.message === 'ACCOUNT_NOT_FOUND') {
       return res.status(404).json({ error: 'Trading account not found' });
     }
-    res.status(500).json({ error: 'Failed to load performance stats' });
+    next(error);
   }
 };
 
 // Standalone Equity Curve Sparkline
-export const getEquityCurve = async (req: Request, res: Response) => {
+export const getEquityCurve = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId!;
     const { accountId } = req.params;
@@ -52,12 +52,12 @@ export const getEquityCurve = async (req: Request, res: Response) => {
     if (error.message === 'ACCOUNT_NOT_FOUND') {
       return res.status(404).json({ error: 'Trading account not found' });
     }
-    res.status(500).json({ error: 'Failed to load equity curve' });
+    next(error);
   }
 };
 
 // List all user accounts (For Account Switcher)
-export const getUserAccounts = async (req: Request, res: Response) => {
+export const getUserAccounts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId!;
     const accounts = await TradingAccount.findAll({ where: { userId } });
@@ -103,6 +103,6 @@ export const getUserAccounts = async (req: Request, res: Response) => {
 
     res.status(200).json(accountList);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch trading accounts' });
+    next(error);
   }
 };
