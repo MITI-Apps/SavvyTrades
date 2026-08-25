@@ -1,8 +1,8 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import  TradingAccount  from '../models/TradingAccount.js';
 import { Op } from 'sequelize';
 
-export const createTradingAccount = async (req: Request, res: Response) => {
+export const createTradingAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { accountName, market, accountType, startingBalance, currency } = req.body;
@@ -30,12 +30,12 @@ export const createTradingAccount = async (req: Request, res: Response) => {
       account,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create trading account' });
+    next(error);
   }
 };
 
 // Fetch All Trading Accounts Belonging to Authenticated User
-export const getAllTradingAccounts = async (req: Request, res: Response) => {
+export const getAllTradingAccounts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
 
@@ -49,12 +49,12 @@ export const getAllTradingAccounts = async (req: Request, res: Response) => {
       accounts,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch trading accounts' });
+    next(error);
   }
 };
 
 // Fetch Single Trading Account by ID (Ensuring Ownership)
-export const getTradingAccountById = async (req: Request, res: Response) => {
+export const getTradingAccountById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { id } = req.params;
@@ -69,11 +69,11 @@ export const getTradingAccountById = async (req: Request, res: Response) => {
 
     res.status(200).json({ account });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch trading account' });
+    next(error);
   }
 };
 
-export const updateTradingAccount = async (req: Request, res: Response) => {
+export const updateTradingAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { id } = req.params;
@@ -116,12 +116,12 @@ export const updateTradingAccount = async (req: Request, res: Response) => {
       account,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update trading account' });
+    next(error);
   }
 };
 
 // Delete Trading Account
-export const deleteTradingAccount = async (req: Request, res: Response) => {
+export const deleteTradingAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { id } = req.params;
@@ -138,6 +138,6 @@ export const deleteTradingAccount = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Trading account deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete trading account' });
+    next(error);
   }
 };

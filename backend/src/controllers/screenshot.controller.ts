@@ -1,10 +1,10 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import Trade from '../models/Trades.js';
 import TradeScreenshot from '../models/TradeScreenshot.js';
 import  TradingAccount  from '../models/TradingAccount.js';
 import cloudinary from '../config/cloudinary.config.js';
 
-export const uploadScreenshot = async (req: Request, res: Response) => {
+export const uploadScreenshot = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { tradeId } = req.params;
@@ -51,7 +51,7 @@ export const uploadScreenshot = async (req: Request, res: Response) => {
       });
     } catch (error) {
       await cloudinary.uploader.destroy(public_id);
-      return res.status(500).json({ error: 'Failed to save screenshot to database' });
+      next(error);
     }
 
     res.status(201).json({
@@ -59,11 +59,11 @@ export const uploadScreenshot = async (req: Request, res: Response) => {
       screenshot,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to upload screenshot to Cloudinary' });
+    next(error);
   }
 };
 
-export const deleteScreenshot = async (req: Request, res: Response) => {
+export const deleteScreenshot = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { tradeId, id } = req.params;
@@ -99,11 +99,11 @@ export const deleteScreenshot = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Screenshot deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete screenshot' });
+    next(error);
   }
 };
 
-export const getTradeScreenshots = async (req: Request, res: Response) => {
+export const getTradeScreenshots = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { tradeId } = req.params;
@@ -141,6 +141,6 @@ export const getTradeScreenshots = async (req: Request, res: Response) => {
       after,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch trade screenshots' });
+    next(error);
   }
 };
