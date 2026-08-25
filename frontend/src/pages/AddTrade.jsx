@@ -41,6 +41,7 @@ export default function AddTrade() {
   const [afterFile, setAfterFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [screenshotErrors, setScreenshotErrors] = useState([])
 
   const activeAccountId = accountId || accounts[0]?.id || ''
 
@@ -65,17 +66,34 @@ export default function AddTrade() {
       }
       const result = await api.post('/trades', tradeData)
 
+      const screenshotPromises = []
+      const screenshotFailures = []
       if (beforeFile && result.trade) {
         const fd = new FormData()
         fd.append('image', beforeFile)
         fd.append('screenshotType', 'BEFORE')
-        api.upload(`/trades/${result.trade.id}/screenshots`, fd).catch(() => {})
+        screenshotPromises.push(
+          api.upload(`/trades/${result.trade.id}/screenshots`, fd).catch((err) => {
+            screenshotFailures.push(`Before screenshot: ${err.message}`)
+          })
+        )
       }
       if (afterFile && result.trade) {
         const fd = new FormData()
         fd.append('image', afterFile)
         fd.append('screenshotType', 'AFTER')
-        api.upload(`/trades/${result.trade.id}/screenshots`, fd).catch(() => {})
+        screenshotPromises.push(
+          api.upload(`/trades/${result.trade.id}/screenshots`, fd).catch((err) => {
+            screenshotFailures.push(`After screenshot: ${err.message}`)
+          })
+        )
+      }
+
+      await Promise.all(screenshotPromises)
+
+      if (screenshotFailures.length > 0) {
+        setScreenshotErrors(screenshotFailures)
+        return
       }
 
       navigate('/journal')
@@ -112,6 +130,17 @@ export default function AddTrade() {
           {error && (
             <div className="animate-fade-up mt-4 rounded-2xl border border-rose/30 bg-rose/10 px-4 py-3 text-[13px] text-rose">
               {error}
+            </div>
+          )}
+
+          {screenshotErrors.length > 0 && (
+            <div className="animate-fade-up mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[13px] text-amber-500">
+              <p className="font-semibold">Trade saved, but:</p>
+              <ul className="mt-1 list-disc pl-4">
+                {screenshotErrors.map((msg, i) => (
+                  <li key={i}>{msg}</li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -221,9 +250,15 @@ export default function AddTrade() {
           </GlassCard>
 
           <div className="animate-fade-up mt-7" style={{ animationDelay: '0.24s' }}>
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Saving…' : 'Save Trade'}
-            </Button>
+            {screenshotErrors.length > 0 ? (
+              <Button onClick={() => navigate('/journal')}>
+                Continue to journal
+              </Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={submitting}>
+                {submitting ? 'Saving…' : 'Save Trade'}
+              </Button>
+            )}
           </div>
         </>
       )}

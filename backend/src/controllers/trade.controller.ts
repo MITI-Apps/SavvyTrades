@@ -1,8 +1,8 @@
-import type { Response, Request } from 'express';
+import type { Response, Request, NextFunction } from 'express';
 import Trade from '../models/Trades.js';
 import  TradingAccount  from '../models/TradingAccount.js';
 
-export const createTrade = async (req: Request, res: Response) => {
+export const createTrade = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const {
@@ -47,11 +47,11 @@ export const createTrade = async (req: Request, res: Response) => {
       trade,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create trade' });
+    next(error);
   }
 };
 
-export const getTrades = async (req: Request, res: Response) => {
+export const getTrades = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { tradingAccountId, page = 1, limit = 10, symbol, direction, outcome } = req.query;
@@ -94,12 +94,12 @@ export const getTrades = async (req: Request, res: Response) => {
       trades,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch trades' });
+    next(error);
   }
 };
 
 // Get Single Trade by ID (Ensuring Ownership)
-export const getTradeById = async (req: Request, res: Response) => {
+export const getTradeById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { id } = req.params;
@@ -122,12 +122,12 @@ export const getTradeById = async (req: Request, res: Response) => {
 
     res.status(200).json({ trade });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch trade' });
+    next(error);
   }
 };
 
 // Update & Close Trade
-export const updateTrade = async (req: Request, res: Response) => {
+export const updateTrade = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { id } = req.params;
@@ -169,12 +169,12 @@ export const updateTrade = async (req: Request, res: Response) => {
       trade,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update trade' });
+    next(error);
   }
 };
 
 // Delete Trade
-export const deleteTrade = async (req: Request, res: Response) => {
+export const deleteTrade = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
     const { id } = req.params;
@@ -198,6 +198,6 @@ export const deleteTrade = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Trade deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete trade' });
+    next(error);
   }
 };
