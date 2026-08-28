@@ -90,12 +90,11 @@ export const calculateDashboardData = async (
   // Metric Formulas per Spec
   const winRate = totalTrades > 0 ? (wins.length / totalTrades) * 100 : 0;
   
-  // Profit factor returns null when grossLoss is 0
   const profitFactor =
     grossLoss > 0
       ? grossProfit / grossLoss
       : grossProfit > 0
-      ? null
+      ? Infinity
       : 0;
 
   const avgWin = wins.length > 0 ? grossProfit / wins.length : 0;
@@ -132,7 +131,7 @@ export const calculateDashboardData = async (
       losses: losses.length,
       breakEven: breakEven.length,
       winRate: round2(winRate),
-      profitFactor: profitFactor === null ? null : round2(profitFactor),
+      profitFactor: round2(profitFactor),
       avgWin: round2(avgWin),
       avgLoss: round2(avgLoss),
       avgPnL: round2(avgPnL),

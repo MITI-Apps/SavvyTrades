@@ -302,7 +302,7 @@ export default function Dashboard() {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <StatCard
               className="animate-fade-up"
-              label="Total Trades"
+              label="Total Trades (closed)"
               value={statsLoading ? '—' : String(stats?.totalTrades ?? 0)}
             />
             <StatCard
@@ -345,7 +345,7 @@ export default function Dashboard() {
             <StatCard
               className="animate-fade-up"
               label="Profit Factor"
-              value={statsLoading ? '—' : String(stats?.profitFactor ?? 0)}
+              value={statsLoading ? '—' : stats?.profitFactor === null ? '\u221E' : String(stats?.profitFactor ?? 0)}
             />
             <StatCard
               className="animate-fade-up"
