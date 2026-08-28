@@ -52,6 +52,7 @@ export default function TradeDetail() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [pnlError, setPnlError] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -74,7 +75,36 @@ export default function TradeDetail() {
     }
   }, [trade])
 
+  function validatePnl(value, selectedOutcome) {
+    const num = parseFloat(value)
+    if (isNaN(num) || value === '') return ''
+    if (selectedOutcome === 'WIN' && num <= 0) return 'Winning trades must have a positive P/L'
+    if (selectedOutcome === 'LOSS' && num >= 0) return 'Losing trades must have a negative P/L'
+    if (selectedOutcome === 'BREAK_EVEN' && num !== 0) return 'Break-even trades must have P/L of $0'
+    return ''
+  }
+
+  function handlePnlChange(e) {
+    const val = e.target.value
+    if (val === '' || val === '-' || val === '.' || val === '-.') {
+      setEditData({ ...editData, pnl: val })
+      setPnlError('')
+      return
+    }
+    const num = parseFloat(val)
+    if (!isNaN(num)) {
+      setEditData({ ...editData, pnl: val })
+      setPnlError(validatePnl(val, editData.outcome))
+    }
+  }
+
   async function handleSave() {
+    const pnlVal = editData.pnl === '' || editData.pnl === '-' ? '0' : editData.pnl
+    const error = validatePnl(pnlVal, editData.outcome)
+    if (error) {
+      setPnlError(error)
+      return
+    }
     setSaving(true)
     try {
       const outcomeMap = { WIN: 'WIN', LOSS: 'LOSS', BREAK_EVEN: 'BREAK_EVEN', OPEN: 'OPEN' }
@@ -233,8 +263,9 @@ export default function TradeDetail() {
                   selected={editData.outcome === o}
                   onClick={() => {
                     const newOutcome = o
-                    const newPnl = newOutcome === 'OPEN' ? 0 : newOutcome === 'BREAK_EVEN' ? 0 : editData.pnl
+                    const newPnl = newOutcome === 'OPEN' ? 0 : newOutcome === 'BREAK_EVEN' ? 0 : ''
                     setEditData({ ...editData, outcome: newOutcome, pnl: newPnl })
+                    setPnlError('')
                   }}
                 >
                   {o === 'BREAK_EVEN' ? 'Break-even' : o === 'OPEN' ? 'Open' : o.charAt(0) + o.slice(1).toLowerCase()}
@@ -248,9 +279,12 @@ export default function TradeDetail() {
               type="number"
               step="0.01"
               value={editData.pnl}
-              onChange={(e) => setEditData({ ...editData, pnl: e.target.value })}
+              onChange={handlePnlChange}
               disabled={editData.outcome === 'OPEN'}
             />
+            {pnlError && (
+              <p className="mt-1.5 text-[12px] text-rose">{pnlError}</p>
+            )}
           </div>
           <div className="mt-4">
             <Input
