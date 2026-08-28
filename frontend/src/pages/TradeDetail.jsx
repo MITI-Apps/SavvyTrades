@@ -52,6 +52,10 @@ export default function TradeDetail() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [pnlError, setPnlError] = useState('')
+  const [beforeFile, setBeforeFile] = useState(null)
+  const [afterFile, setAfterFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -74,7 +78,36 @@ export default function TradeDetail() {
     }
   }, [trade])
 
+  function validatePnl(value, selectedOutcome) {
+    const num = parseFloat(value)
+    if (isNaN(num) || value === '') return ''
+    if (selectedOutcome === 'WIN' && num <= 0) return 'Winning trades must have a positive P/L'
+    if (selectedOutcome === 'LOSS' && num >= 0) return 'Losing trades must have a negative P/L'
+    if (selectedOutcome === 'BREAK_EVEN' && num !== 0) return 'Break-even trades must have P/L of $0'
+    return ''
+  }
+
+  function handlePnlChange(e) {
+    const val = e.target.value
+    if (val === '' || val === '-' || val === '.' || val === '-.') {
+      setEditData({ ...editData, pnl: val })
+      setPnlError('')
+      return
+    }
+    const num = parseFloat(val)
+    if (!isNaN(num)) {
+      setEditData({ ...editData, pnl: val })
+      setPnlError(validatePnl(val, editData.outcome))
+    }
+  }
+
   async function handleSave() {
+    const pnlVal = editData.pnl === '' || editData.pnl === '-' ? '0' : editData.pnl
+    const error = validatePnl(pnlVal, editData.outcome)
+    if (error) {
+      setPnlError(error)
+      return
+    }
     setSaving(true)
     try {
       const outcomeMap = { WIN: 'WIN', LOSS: 'LOSS', BREAK_EVEN: 'BREAK_EVEN', OPEN: 'OPEN' }
@@ -117,6 +150,29 @@ export default function TradeDetail() {
       }))
     } catch (err) {
       alert(err.message)
+    }
+  }
+
+  async function handleUploadScreenshot(file, screenshotType) {
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('image', file)
+      fd.append('screenshotType', screenshotType)
+      const result = await api.upload(`/trades/${id}/screenshots`, fd)
+      setScreenshots((prev) => ({
+        ...prev,
+        [screenshotType === 'BEFORE' ? 'before' : 'after']: [
+          ...prev[screenshotType === 'BEFORE' ? 'before' : 'after'],
+          result,
+        ],
+      }))
+      if (screenshotType === 'BEFORE') setBeforeFile(null)
+      else setAfterFile(null)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -233,8 +289,9 @@ export default function TradeDetail() {
                   selected={editData.outcome === o}
                   onClick={() => {
                     const newOutcome = o
-                    const newPnl = newOutcome === 'OPEN' ? 0 : newOutcome === 'BREAK_EVEN' ? 0 : editData.pnl
+                    const newPnl = newOutcome === 'OPEN' ? 0 : newOutcome === 'BREAK_EVEN' ? 0 : ''
                     setEditData({ ...editData, outcome: newOutcome, pnl: newPnl })
+                    setPnlError('')
                   }}
                 >
                   {o === 'BREAK_EVEN' ? 'Break-even' : o === 'OPEN' ? 'Open' : o.charAt(0) + o.slice(1).toLowerCase()}
@@ -248,9 +305,12 @@ export default function TradeDetail() {
               type="number"
               step="0.01"
               value={editData.pnl}
-              onChange={(e) => setEditData({ ...editData, pnl: e.target.value })}
+              onChange={handlePnlChange}
               disabled={editData.outcome === 'OPEN'}
             />
+            {pnlError && (
+              <p className="mt-1.5 text-[12px] text-rose">{pnlError}</p>
+            )}
           </div>
           <div className="mt-4">
             <Input
@@ -348,12 +408,27 @@ export default function TradeDetail() {
                   </div>
                 ))
               ) : (
-                <div className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#1c2230] to-[#141821]">
-                  <Shot color="#3fd9ac" gradientId="shot-before" />
-                  <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
-                    Before
-                  </span>
-                </div>
+                <label className="relative flex aspect-[1/1.1] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-gradient-to-br from-[#1c2230] to-[#141821] transition hover:border-blue1/50">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleUploadScreenshot(file, 'BEFORE')
+                    }}
+                  />
+                  {uploading ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-blue1" />
+                  ) : (
+                    <>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-3">
+                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                      </svg>
+                      <span className="mt-1.5 text-[11px] font-semibold text-ink-3">Add Before</span>
+                    </>
+                  )}
+                </label>
               )}
               {screenshots.after.length > 0 ? (
                 screenshots.after.map((s) => (
@@ -375,12 +450,27 @@ export default function TradeDetail() {
                   </div>
                 ))
               ) : (
-                <div className="relative aspect-[1/1.1] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#1c2230] to-[#141821]">
-                  <Shot color="#7c93ff" gradientId="shot-after" />
-                  <span className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-ink-2 backdrop-blur-md">
-                    After
-                  </span>
-                </div>
+                <label className="relative flex aspect-[1/1.1] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-gradient-to-br from-[#1c2230] to-[#141821] transition hover:border-blue1/50">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleUploadScreenshot(file, 'AFTER')
+                    }}
+                  />
+                  {uploading ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-blue1" />
+                  ) : (
+                    <>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-3">
+                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                      </svg>
+                      <span className="mt-1.5 text-[11px] font-semibold text-ink-3">Add After</span>
+                    </>
+                  )}
+                </label>
               )}
             </div>
           </div>

@@ -19,7 +19,7 @@ const shadows = [
 
 export default function Accounts() {
   const { accounts, loading } = useAccounts()
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = useState(() => localStorage.getItem('activeAccountId') || null)
   const navigate = useNavigate()
 
   const resolvedSelected = selectedId || accounts[0]?.id

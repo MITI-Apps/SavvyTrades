@@ -74,11 +74,13 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useAccounts()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [activeId, setActiveId] = useState(() => searchParams.get('account') || null)
+  const [activeId, setActiveId] = useState(() => searchParams.get('account') || localStorage.getItem('activeAccountId') || null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const menuRef = useRef(null)
+  const lastTapRef = useRef(0)
+  const touchStartRef = useRef(null)
 
   const resolvedId = activeId || accounts[0]?.id
   const { stats, loading: statsLoading } = useAccountStats(resolvedId)
@@ -90,6 +92,12 @@ export default function Dashboard() {
       setSearchParams({}, { replace: true })
     }
   }, [])
+
+  useEffect(() => {
+    if (resolvedId) {
+      localStorage.setItem('activeAccountId', resolvedId)
+    }
+  }, [resolvedId])
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -165,7 +173,24 @@ export default function Dashboard() {
           <div
             role="button"
             tabIndex={0}
-            onClick={() => navigate('/accounts')}
+            onClick={() => {
+              const now = Date.now()
+              if (now - lastTapRef.current < 300) {
+                navigate('/accounts')
+              }
+              lastTapRef.current = now
+            }}
+            onTouchStart={(e) => {
+              touchStartRef.current = e.touches[0].clientY
+            }}
+            onTouchEnd={(e) => {
+              if (touchStartRef.current === null) return
+              const diff = e.changedTouches[0].clientY - touchStartRef.current
+              if (diff > 80) {
+                navigate('/accounts')
+              }
+              touchStartRef.current = null
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') navigate('/accounts')
             }}
@@ -262,7 +287,7 @@ export default function Dashboard() {
             className="animate-fade-up mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-ink-3"
             style={{ animationDelay: '0.06s' }}
           >
-            Tap the card to view accounts
+            Double tap or swipe down to view accounts
             <IconChevronDown className="text-ink-2" />
           </div>
 

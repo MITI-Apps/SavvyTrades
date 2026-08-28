@@ -16,7 +16,8 @@ export default function Journal() {
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState('all')
   const { accounts, loading: accountsLoading } = useAccounts()
-  const { trades, loading } = useTrades(accounts[0]?.id)
+  const activeAccountId = localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
+  const { trades, loading } = useTrades(activeAccountId)
 
   const displayTrades = trades.map((t) => ({
     ...t,
@@ -46,7 +47,7 @@ export default function Journal() {
         <h1 className="font-display text-[19px] font-semibold">Journal</h1>
         {!accountsLoading && accounts.length > 0 && (
           <Link
-            to="/add-trade"
+            to={`/add-trade?account=${activeAccountId}`}
             className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-border bg-surface-2"
             aria-label="Add trade"
           >
