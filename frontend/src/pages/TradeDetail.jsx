@@ -9,6 +9,7 @@ import Pill from '../components/ui/Pill'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import OptionChip from '../components/ui/OptionChip'
+import ConfirmModal from '../components/ui/ConfirmModal'
 
 function Shot({ color, gradientId }) {
   return (
@@ -56,6 +57,7 @@ export default function TradeDetail() {
   const [beforeFile, setBeforeFile] = useState(null)
   const [afterFile, setAfterFile] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [screenshotToDelete, setScreenshotToDelete] = useState(null)
 
   useEffect(() => {
     if (!id) return
@@ -140,16 +142,21 @@ export default function TradeDetail() {
     }
   }
 
-  async function handleDeleteScreenshot(screenshotId) {
-    if (!confirm('Delete this screenshot?')) return
+  function handleDeleteScreenshot(screenshotId) {
+    setScreenshotToDelete(screenshotId)
+  }
+
+  async function confirmDeleteScreenshot() {
     try {
-      await api.delete(`/trades/${id}/screenshots/${screenshotId}`)
+      await api.delete(`/trades/${id}/screenshots/${screenshotToDelete}`)
       setScreenshots((prev) => ({
-        before: prev.before.filter((s) => s.id !== screenshotId),
-        after: prev.after.filter((s) => s.id !== screenshotId),
+        before: prev.before.filter((s) => s.id !== screenshotToDelete),
+        after: prev.after.filter((s) => s.id !== screenshotToDelete),
       }))
     } catch (err) {
       alert(err.message)
+    } finally {
+      setScreenshotToDelete(null)
     }
   }
 
@@ -476,6 +483,15 @@ export default function TradeDetail() {
           </div>
         </>
       )}
+
+      <ConfirmModal
+        open={screenshotToDelete !== null}
+        onClose={() => setScreenshotToDelete(null)}
+        onConfirm={confirmDeleteScreenshot}
+        title="Delete Screenshot"
+        message="Are you sure you want to delete this screenshot?"
+        confirmLabel="Yes, Delete"
+      />
     </div>
   )
 }
