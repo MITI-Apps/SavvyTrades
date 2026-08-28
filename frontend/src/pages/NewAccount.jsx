@@ -28,13 +28,16 @@ export default function NewAccount() {
     setError('')
     setSubmitting(true)
     try {
-      await api.post('/trading-accounts', {
+      const result = await api.post('/trading-accounts', {
         accountName: accountName.trim(),
         market,
         accountType: type,
         startingBalance: startingBalance ? parseFloat(startingBalance) : 0,
         currency: currency.trim().toUpperCase() || 'USD',
       })
+      if (result?.account?.id) {
+        localStorage.setItem('activeAccountId', result.account.id)
+      }
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)

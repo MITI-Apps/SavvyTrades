@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAccounts } from '../hooks/useData'
 import { IconCamera, IconX } from '../components/Icons'
@@ -29,6 +29,7 @@ function UploadBox({ filename, onFile }) {
 
 export default function AddTrade() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { accounts, loading: accountsLoading } = useAccounts()
   const [symbol, setSymbol] = useState('')
   const [direction, setDirection] = useState('buy')
@@ -36,14 +37,14 @@ export default function AddTrade() {
   const [pnl, setPnl] = useState('')
   const [reason, setReason] = useState('')
   const [notes, setNotes] = useState('')
-  const [accountId, setAccountId] = useState('')
   const [beforeFile, setBeforeFile] = useState(null)
   const [afterFile, setAfterFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [screenshotErrors, setScreenshotErrors] = useState([])
 
-  const activeAccountId = accountId || accounts[0]?.id || ''
+  const activeAccountId = searchParams.get('account') || localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
+  const activeAccount = accounts.find((a) => a.id === activeAccountId)
   const isClosed = outcome !== 'open'
 
   function validatePnl(value, selectedOutcome) {
@@ -152,7 +153,7 @@ export default function AddTrade() {
           backTo="/dashboard"
           icon={IconX}
           title="Add Trade"
-          sub={accounts.find((a) => a.id === activeAccountId)?.name || 'Select an account'}
+          sub={activeAccount?.name || 'Loading account...'}
         />
       </div>
 
@@ -183,19 +184,6 @@ export default function AddTrade() {
                 ))}
               </ul>
             </div>
-          )}
-
-          {accounts.length > 1 && (
-            <GlassCard className="animate-fade-up mt-5 p-[18px]" style={{ animationDelay: '0.02s' }}>
-              <span className="mb-2 block text-xs font-semibold tracking-wide text-ink-2">Account</span>
-              <div className="mt-2 grid grid-cols-2 gap-2.5">
-                {accounts.map((a) => (
-                  <OptionChip key={a.id} selected={activeAccountId === a.id} onClick={() => setAccountId(a.id)}>
-                    {a.name}
-                  </OptionChip>
-                ))}
-              </div>
-            </GlassCard>
           )}
 
           <GlassCard className="animate-fade-up mt-5 p-[18px]" style={{ animationDelay: '0.04s' }}>

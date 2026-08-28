@@ -6,11 +6,12 @@ export default function BottomNav() {
   const { pathname } = useLocation()
   const { accounts, loading } = useAccounts()
   const needsAccount = !loading && accounts.length === 0
+  const activeAccountId = localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
 
   const items = [
     { to: '/dashboard', label: 'Dashboard', icon: IconGrid },
     {
-      to: needsAccount ? '/new-account' : '/add-trade',
+      to: needsAccount ? '/new-account' : `/add-trade?account=${activeAccountId}`,
       label: 'Add',
       icon: IconPlus,
       center: true,

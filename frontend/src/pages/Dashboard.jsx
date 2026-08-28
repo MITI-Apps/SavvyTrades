@@ -74,7 +74,7 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useAccounts()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [activeId, setActiveId] = useState(() => searchParams.get('account') || null)
+  const [activeId, setActiveId] = useState(() => searchParams.get('account') || localStorage.getItem('activeAccountId') || null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -92,6 +92,12 @@ export default function Dashboard() {
       setSearchParams({}, { replace: true })
     }
   }, [])
+
+  useEffect(() => {
+    if (resolvedId) {
+      localStorage.setItem('activeAccountId', resolvedId)
+    }
+  }, [resolvedId])
 
   useEffect(() => {
     function handleClickOutside(e) {

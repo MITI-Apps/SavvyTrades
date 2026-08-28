@@ -4,7 +4,7 @@ export default function AtmCard({
   name,
   balance,
   pl,
-  plClass = 'text-mint',
+  plClass,
   size = 'md',
   className = '',
   shadowClass = 'shadow-card',
@@ -12,6 +12,7 @@ export default function AtmCard({
   const sm = size === 'sm'
   const displayBalance = typeof balance === 'number' ? fmtCurrency(balance) : balance
   const displayPl = typeof pl === 'number' ? fmtPercent(pl) : pl
+  const resolvedPlClass = plClass || (typeof pl === 'number' && pl < 0 ? 'text-rose' : 'text-mint')
 
   return (
     <div
@@ -57,7 +58,7 @@ export default function AtmCard({
           {name}
         </div>
         {displayPl && (
-          <div className={`font-bold ${sm ? 'text-[11px]' : 'text-[12.5px]'} ${plClass}`}>
+          <div className={`font-bold ${sm ? 'text-[11px]' : 'text-[12.5px]'} ${resolvedPlClass}`}>
             {displayPl}
           </div>
         )}
