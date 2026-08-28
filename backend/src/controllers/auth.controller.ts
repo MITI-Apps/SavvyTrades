@@ -186,20 +186,22 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
       return res.status(404).json({ error: "User not found" });
     }
 
-    const existingUser = await User.findOne({
-      where: {
-        email, 
-        id: { [Op.ne]: userId}
-      }
-    });
+    if (email) {
+      const existingUser = await User.findOne({
+        where: {
+          email, 
+          id: { [Op.ne]: userId}
+        }
+      });
 
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email is already in use by another account' });
-    };
+      if (existingUser) {
+        return res.status(400).json({ error: 'Email is already in use by another account' });
+      }
+      user.email = email;
+    }
     
     //update fields
     user.name = name;
-    user.email = email;
     await user.save();
 
     res.status(200).json({

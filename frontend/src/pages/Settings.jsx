@@ -57,7 +57,6 @@ export default function Settings() {
   const [showProfile, setShowProfile] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [profileName, setProfileName] = useState(user?.name || '')
-  const [profileEmail, setProfileEmail] = useState(user?.email || '')
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileMsg, setProfileMsg] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
@@ -79,8 +78,8 @@ export default function Settings() {
   }
 
   async function handleSaveProfile() {
-    if (!profileName.trim() || !profileEmail.trim()) {
-      setProfileMsg('Name and email are required')
+    if (!profileName.trim()) {
+      setProfileMsg('Name is required')
       return
     }
     setProfileSaving(true)
@@ -88,7 +87,6 @@ export default function Settings() {
     try {
       await api.put('/auth/update-profile', {
         name: profileName.trim(),
-        email: profileEmail.trim(),
       })
       setProfileMsg('Profile updated successfully!')
       setTimeout(() => {
@@ -147,7 +145,6 @@ export default function Settings() {
         style={{ animationDelay: '0.04s' }}
         onClick={() => {
           setProfileName(user?.name || '')
-          setProfileEmail(user?.email || '')
           setProfileMsg('')
           setShowProfile(true)
         }}
@@ -206,13 +203,14 @@ export default function Settings() {
             value={profileName}
             onChange={(e) => setProfileName(e.target.value)}
           />
-          <Input
-            label="Email"
-            icon={IconUser}
-            type="email"
-            value={profileEmail}
-            onChange={(e) => setProfileEmail(e.target.value)}
-          />
+          <div>
+            <label className="mb-1.5 block text-[12.5px] font-medium text-ink-2">Email</label>
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-4 py-3 text-[13.5px] text-ink-3">
+              <IconUser width={16} height={16} className="shrink-0 text-ink-3" />
+              <span className="truncate">{user?.email || ''}</span>
+            </div>
+            <p className="mt-1.5 text-[11.5px] text-ink-3">Contact support to change your email</p>
+          </div>
           {profileMsg && (
             <p className={`text-[13px] ${profileMsg.includes('success') ? 'text-mint' : 'text-rose'}`}>
               {profileMsg}
