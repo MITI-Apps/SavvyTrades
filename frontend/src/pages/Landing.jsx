@@ -34,7 +34,7 @@ export default function Landing() {
             <span className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-gradient-to-br from-blue1 to-blue2 shadow-[0_8px_20px_-4px_rgba(124,147,255,0.5)]">
               <LogoMark />
             </span>
-            <span className="font-display text-[17px] font-bold tracking-tight">SavvyTrade</span>
+            <span className="font-display text-[17px] font-bold tracking-tight">SavvyTrades</span>
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm text-ink-2 transition hover:text-ink">Features</a>
@@ -64,7 +64,7 @@ export default function Landing() {
           <div className="absolute right-0 top-20 h-[400px] w-[500px] rounded-full bg-blue2/[0.06] blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-12 lg:pt-32 lg:pb-36">
+        <div className="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-12 lg:pt-20 lg:pb-36">
           {/* Left – copy */}
           <div>
             <span
@@ -150,7 +150,7 @@ export default function Landing() {
                 <div className="sheen pointer-events-none absolute inset-0" />
                 <div className="relative z-[1] flex items-start justify-between">
                   <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.06em] text-gold1">
-                    <span>◆</span> SavvyTrade
+                    <span>◆</span> SavvyTrades
                   </div>
                   <div className="h-7 w-[38px] rounded-[6px] bg-gradient-to-br from-gold1 to-gold2 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2)]" />
                 </div>
@@ -258,7 +258,7 @@ export default function Landing() {
               <div className="sheen pointer-events-none absolute inset-0" />
               <div className="relative z-[1] flex items-start justify-between">
                 <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-gold1">
-                  <span>◆</span> SavvyTrade
+                  <span>◆</span> SavvyTrades
                 </div>
                 <div className="h-[22px] w-[30px] rounded-[6px] bg-gradient-to-br from-gold1 to-gold2 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2)]" />
               </div>
@@ -315,7 +315,7 @@ export default function Landing() {
             className="animate-fade-up mx-auto mt-5 max-w-md text-base text-ink-2"
             style={{ animationDelay: '0.06s' }}
           >
-            Join SavvyTrade and give your trading the tool it deserves. Free to start, no strings attached.
+            Join SavvyTrades and give your trading the tool it deserves. Free to start, no strings attached.
           </p>
           <div
             className="animate-fade-up mt-10 flex flex-wrap items-center justify-center gap-4"
@@ -345,9 +345,9 @@ export default function Landing() {
             <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-gradient-to-br from-blue1 to-blue2">
               <LogoMark />
             </span>
-            <span className="font-display text-sm font-bold tracking-tight">SavvyTrade</span>
+            <span className="font-display text-sm font-bold tracking-tight">SavvyTrades</span>
           </div>
-          <p className="text-xs text-ink-3">&copy; {new Date().getFullYear()} SavvyTrade. All rights reserved.</p>
+          <p className="text-xs text-ink-3">&copy; {new Date().getFullYear()} SavvyTrades. All rights reserved.</p>
           <div className="flex items-center gap-5">
             <a href="#" onClick={(e) => e.preventDefault()} className="text-xs text-ink-3 transition hover:text-ink">Privacy</a>
             <a href="#" onClick={(e) => e.preventDefault()} className="text-xs text-ink-3 transition hover:text-ink">Terms</a>
