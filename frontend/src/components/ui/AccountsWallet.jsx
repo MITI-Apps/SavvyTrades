@@ -81,7 +81,7 @@ export default function AccountsWallet({ open, onClose, activeId, accounts = [] 
             className="animate-fade-up text-xs font-semibold uppercase tracking-[0.14em] text-ink-3"
             style={{ animationDelay: '0.25s' }}
           >
-            SavvyTrade · Wallet
+            SavvyTrades · Wallet
           </span>
           <Link
             to="/new-account"

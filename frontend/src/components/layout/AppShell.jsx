@@ -8,7 +8,7 @@ export default function AppShell({ withNav = false }) {
         <aside className="hidden min-h-dvh flex-col justify-center px-12 py-20 lg:flex xl:px-20">
           <span className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border bg-white/[0.045] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-ink-2">
             <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-mint to-blue1 shadow-[0_0_10px_rgba(63,217,172,0.8)]" />
-            SavvyTrade · Premium Trading Journal
+            SavvyTrades · Premium Trading Journal
           </span>
           <h1
             className="animate-fade-up mt-6 max-w-[620px] font-display text-[clamp(36px,4.5vw,56px)] font-semibold leading-[1.05] tracking-[-0.02em]"

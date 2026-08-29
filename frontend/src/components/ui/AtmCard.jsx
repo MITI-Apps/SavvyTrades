@@ -27,7 +27,7 @@ export default function AtmCard({
             sm ? 'text-[11px]' : 'text-[12.5px]'
           }`}
         >
-          <span>◆</span> SavvyTrade
+          <span>◆</span> SavvyTrades
         </div>
         <div
           className={`rounded-[6px] bg-gradient-to-br from-gold1 to-gold2 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2)] ${

@@ -151,7 +151,7 @@ export default function Login() {
         </Button>
       </div>
       <p className="animate-fade-up mt-7 text-center text-[13.5px] text-ink-2" style={{ animationDelay: '0.19s' }}>
-        New to SavvyTrade?{' '}
+        New to SavvyTrades?{' '}
         <Link to="/register" className="font-semibold text-blue1">
           Get started free
         </Link>
