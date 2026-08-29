@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useAccounts, useTrades } from '../hooks/useData'
 import { fmtDate, fmtTime, badgeFromSymbol, normalizeDirection, normalizeOutcome } from '../utils'
 import { IconPlus, IconSearch, IconFilter } from '../components/Icons'
 import TradeCard from '../components/ui/TradeCard'
 import EmptyState from '../components/ui/EmptyState'
+import OptionChip from '../components/ui/OptionChip'
 
 const TABS = [
   { key: 'all', label: 'All' },
@@ -12,12 +13,50 @@ const TABS = [
   { key: 'closed', label: 'Closed' },
 ]
 
+const DIRECTION_OPTIONS = [
+  { key: 'all', label: 'All' },
+  { key: 'buy', label: 'Buy' },
+  { key: 'sell', label: 'Sell' },
+]
+
+const OUTCOME_OPTIONS = [
+  { key: 'all', label: 'All' },
+  { key: 'win', label: 'Win' },
+  { key: 'loss', label: 'Loss' },
+  { key: 'break_even', label: 'Break Even' },
+]
+
 export default function Journal() {
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState('all')
+  const [showFilters, setShowFilters] = useState(false)
+  const [directionFilter, setDirectionFilter] = useState('all')
+  const [outcomeFilter, setOutcomeFilter] = useState('all')
   const { accounts, loading: accountsLoading } = useAccounts()
   const activeAccountId = localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
-  const { trades, loading } = useTrades(activeAccountId)
+  const { trades, loading, refetch } = useTrades(activeAccountId)
+  const refetchRef = useRef(refetch)
+  refetchRef.current = refetch
+
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.visibilityState === 'visible' && activeAccountId) {
+        refetchRef.current()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [activeAccountId])
+
+  const applyFilters = useCallback((direction, outcome) => {
+    const params = {}
+    if (direction !== 'all') params.direction = direction.toUpperCase()
+    if (outcome !== 'all') {
+      if (outcome === 'break_even') params.outcome = 'BREAK_EVEN'
+      else params.outcome = outcome.toUpperCase()
+    }
+    refetchRef.current(params)
+  }, [])
 
   const displayTrades = trades.map((t) => ({
     ...t,
@@ -38,6 +77,7 @@ export default function Journal() {
     return matchesQuery && t.status === 'closed'
   })
 
+  const hasActiveFilters = directionFilter !== 'all' || outcomeFilter !== 'all'
   const openCount = displayTrades.filter((t) => t.status === 'open').length
   const closedCount = displayTrades.filter((t) => t.status === 'closed').length
 
@@ -80,12 +120,57 @@ export default function Journal() {
             </div>
             <button
               type="button"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-border bg-surface-2"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border bg-surface-2 transition ${
+                hasActiveFilters ? 'border-blue1/50 bg-blue1/10' : 'border-border'
+              }`}
               aria-label="Filter trades"
             >
-              <IconFilter className="text-ink-2" />
+              <IconFilter className={hasActiveFilters ? 'text-blue1' : 'text-ink-2'} />
             </button>
           </div>
+
+          {showFilters && (
+            <div className="animate-fade-up mt-3 rounded-2xl border border-border bg-surface-2 p-4">
+              <div className="mb-3">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3">Direction</p>
+                <div className="flex gap-2">
+                  {DIRECTION_OPTIONS.map((opt) => (
+                    <OptionChip
+                      key={opt.key}
+                      selected={directionFilter === opt.key}
+                      onClick={() => { setDirectionFilter(opt.key); applyFilters(opt.key, outcomeFilter) }}
+                    >
+                      {opt.label}
+                    </OptionChip>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3">Outcome</p>
+                <div className="flex flex-wrap gap-2">
+                  {OUTCOME_OPTIONS.map((opt) => (
+                    <OptionChip
+                      key={opt.key}
+                      selected={outcomeFilter === opt.key}
+                      onClick={() => { setOutcomeFilter(opt.key); applyFilters(directionFilter, opt.key) }}
+                    >
+                      {opt.label}
+                    </OptionChip>
+                  ))}
+                </div>
+              </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={() => { setDirectionFilter('all'); setOutcomeFilter('all'); applyFilters('all', 'all') }}
+                  className="mt-3 text-[12px] font-semibold text-blue1 transition hover:brightness-110"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
 
           <div className="animate-fade-up mt-4 flex gap-2" style={{ animationDelay: '0.06s' }}>
             {TABS.map((t) => (
