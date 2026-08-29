@@ -21,15 +21,13 @@ export const createTradeSchema = Joi.object({
   notes: Joi.string().max(1000).optional().allow('', null),
 });
 
-// Query Parameters Schema for Filtering & Pagination
+// Query Parameters Schema for Filtering
 export const getTradesQuerySchema = Joi.object({
   // 🔒 tradingAccountId is now strictly REQUIRED
   tradingAccountId: Joi.string().uuid().required().messages({
     'string.guid': 'Invalid trading account ID format',
     'any.required': 'You must specify a tradingAccountId to fetch trades',
   }),
-  page: Joi.number().integer().min(1).default(1),
-  limit: Joi.number().integer().min(1).max(100).default(10),
   symbol: Joi.string().trim().uppercase().optional(),
   direction: Joi.string().valid('BUY', 'SELL').optional(),
   outcome: Joi.string().valid('WIN', 'LOSS', 'BREAK_EVEN', 'OPEN').optional(),
