@@ -87,6 +87,9 @@ export default function Dashboard() {
   const { data: equityData } = useEquityCurve(resolvedId)
   const active = accounts.find((a) => a.id === resolvedId)
 
+  const hour = new Date().getHours()
+  const greeting = hour >= 5 && hour < 12 ? 'Good morning' : hour >= 12 && hour < 17 ? 'Good afternoon' : 'Good evening'
+
   useEffect(() => {
     if (searchParams.has('account')) {
       setSearchParams({}, { replace: true })
@@ -142,7 +145,7 @@ export default function Dashboard() {
     <div>
       <div className="animate-fade-up mt-4 flex items-center justify-between">
         <div>
-          <div className="text-xs text-ink-3">Good evening</div>
+          <div className="text-xs text-ink-3">{greeting}</div>
           <div className="font-display text-lg font-bold">{firstName}</div>
         </div>
         <Link
