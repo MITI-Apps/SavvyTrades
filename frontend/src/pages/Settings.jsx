@@ -192,7 +192,7 @@ export default function Settings() {
         className="animate-fade-up mt-7 text-center text-[11.5px] text-ink-3"
         style={{ animationDelay: '0.19s' }}
       >
-        SavvyTrade v2.4.0
+        SavvyTrades v2.4.0
       </div>
 
       <Modal open={showProfile} onClose={() => setShowProfile(false)} title="Edit Profile">
