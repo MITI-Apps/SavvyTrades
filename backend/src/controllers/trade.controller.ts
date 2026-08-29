@@ -54,7 +54,7 @@ export const createTrade = async (req: Request, res: Response, next: NextFunctio
 export const getTrades = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
-    const { tradingAccountId, page = 1, limit = 10, symbol, direction, outcome } = req.query;
+    const { tradingAccountId, symbol, direction, outcome } = req.query;
 
     // 1. Verify the requested trading account exists AND belongs to the authenticated user
     const account = await TradingAccount.findOne({
@@ -68,31 +68,20 @@ export const getTrades = async (req: Request, res: Response, next: NextFunction)
     }
 
     // 2. Fetch trades belonging strictly to THIS validated account
-    const offset = (Number(page) - 1) * Number(limit);
     const whereClause: Record<string, any> = {
-      tradingAccountId: tradingAccountId, // Scope trades ONLY to this account
-    };// where the trade, belongs to the current(opened) trading account
+      tradingAccountId: tradingAccountId,
+    };
 
     if (symbol) whereClause.symbol = symbol;
     if (direction) whereClause.direction = direction;
     if (outcome) whereClause.outcome = outcome;
 
-    const { count, rows: trades } = await Trade.findAndCountAll({
+    const trades = await Trade.findAll({
       where: whereClause,
-      limit: Number(limit),
-      offset,
       order: [['openedAt', 'DESC']],
     });
 
-    res.status(200).json({
-      pagination: {
-        totalItems: count,
-        totalPages: Math.ceil(count / Number(limit)),
-        currentPage: Number(page),
-        itemsPerPage: Number(limit),
-      },
-      trades,
-    });
+    res.status(200).json({ trades });
   } catch (error) {
     next(error);
   }

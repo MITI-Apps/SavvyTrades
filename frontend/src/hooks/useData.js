@@ -63,7 +63,6 @@ export function useAccountStats(accountId) {
 
 export function useTrades(accountId, params = {}) {
   const [trades, setTrades] = useState([])
-  const [pagination, setPagination] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -76,7 +75,6 @@ export function useTrades(accountId, params = {}) {
       .get(`/trades?${query}`)
       .then((d) => {
         setTrades(d.trades)
-        setPagination(d.pagination)
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -87,7 +85,7 @@ export function useTrades(accountId, params = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId])
 
-  return { trades, pagination, loading, error, refetch }
+  return { trades, loading, error, refetch }
 }
 
 export function useTrade(id) {
