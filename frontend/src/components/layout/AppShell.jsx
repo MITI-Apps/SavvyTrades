@@ -1,52 +1,108 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import { useAccounts } from '../../hooks/useData'
 import BottomNav from './BottomNav'
+import { IconGrid, IconJournal, IconPlus, IconGear, IconLogout } from '../Icons'
+
+function Sidebar() {
+  const { pathname } = useLocation()
+  const { user, logout } = useAuth()
+  const { accounts } = useAccounts()
+  const needsAccount = accounts.length === 0
+  const activeAccountId = localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
+
+  const initials = user?.name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || '??'
+
+  const navItems = [
+    { to: '/dashboard', label: 'Dashboard', icon: IconGrid },
+    { to: '/journal', label: 'Journal', icon: IconJournal },
+    {
+      to: needsAccount ? '/new-account' : `/add-trade?account=${activeAccountId}`,
+      label: 'Add Trade',
+      icon: IconPlus,
+    },
+    { to: '/settings', label: 'Settings', icon: IconGear },
+  ]
+
+  const isActive = (to) =>
+    to === '/journal'
+      ? pathname.startsWith('/journal') || pathname.startsWith('/trade')
+      : pathname.startsWith(to)
+
+  return (
+    <aside className="sticky top-0 z-40 flex h-dvh w-[260px] shrink-0 flex-col border-r border-border bg-surface/80 backdrop-blur-xl xl:w-[280px]">
+      <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue1 to-blue2">
+          <span className="font-display text-sm font-bold text-[#0b0d13]">S</span>
+        </div>
+        <span className="font-display text-[15px] font-semibold tracking-tight">SavvyTrades</span>
+      </div>
+
+      <nav className="flex-1 space-y-1 px-3 py-4">
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
+              isActive(to)
+                ? 'bg-gradient-to-br from-blue1/15 to-blue2/10 text-ink'
+                : 'text-ink-3 hover:bg-white/[0.04] hover:text-ink-2'
+            }`}
+          >
+            <Icon width={19} height={19} strokeWidth={isActive(to) ? 2 : 1.6} />
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="border-t border-border p-3">
+        <Link
+          to="/settings"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-white/[0.04]"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue1 to-blue2 font-display text-xs font-bold text-[#0b0d13]">
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[13px] font-semibold">{user?.name || 'User'}</div>
+            <div className="truncate text-[11px] text-ink-3">{user?.email || ''}</div>
+          </div>
+        </Link>
+        <button
+          type="button"
+          onClick={logout}
+          className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-ink-3 transition hover:bg-white/[0.04] hover:text-rose"
+        >
+          <IconLogout width={18} height={18} />
+          Log out
+        </button>
+      </div>
+    </aside>
+  )
+}
 
 export default function AppShell({ withNav = false }) {
   return (
     <div className="bg-page-glows min-h-dvh font-sans text-ink antialiased">
-      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col lg:max-w-none lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
-        <aside className="hidden min-h-dvh flex-col justify-center px-12 py-20 lg:flex xl:px-20">
-          <span className="animate-fade-up inline-flex w-fit items-center gap-2 rounded-full border border-border bg-white/[0.045] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-ink-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-mint to-blue1 shadow-[0_0_10px_rgba(63,217,172,0.8)]" />
-            SavvyTrades · Premium Trading Journal
-          </span>
-          <h1
-            className="animate-fade-up mt-6 max-w-[620px] font-display text-[clamp(36px,4.5vw,56px)] font-semibold leading-[1.05] tracking-[-0.02em]"
-            style={{ animationDelay: '0.06s' }}
-          >
-            Your trading journal, built like a{' '}
-            <span className="bg-gradient-to-br from-blue1 to-blue2 bg-clip-text text-transparent">
-              private bank app.
-            </span>
-          </h1>
-          <p
-            className="animate-fade-up mt-4 max-w-[540px] text-base leading-relaxed text-ink-2"
-            style={{ animationDelay: '0.12s' }}
-          >
-            Dark, glass-surfaced, and understated. Log trades, review screenshots, and track
-            performance with the polish of a digital bank — never a spreadsheet.
-          </p>
-          <div className="animate-fade-up mt-10 flex items-center gap-3" style={{ animationDelay: '0.18s' }}>
-            <Link
-              to="/dashboard"
-              className="rounded-2xl bg-gradient-to-br from-blue1 to-blue2 px-6 py-3.5 text-sm font-bold text-[#0b0d13] shadow-primary transition hover:brightness-105 active:scale-[0.97]"
-            >
-              Open Dashboard
-            </Link>
-            <Link
-              to="/login"
-              className="rounded-2xl border border-border-strong bg-white/[0.07] px-6 py-3.5 text-sm font-bold text-ink transition hover:bg-white/[0.12] active:scale-[0.97]"
-            >
-              Log In
-            </Link>
-          </div>
-        </aside>
-        <div className="flex min-h-dvh flex-col lg:border-l lg:border-border">
-          <main className="flex-1 px-5 pb-36 pt-6 sm:px-7">
-            <Outlet />
-          </main>
-          {withNav && <BottomNav />}
-        </div>
+      {/* Mobile layout */}
+      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col lg:hidden">
+        <main className="flex-1 px-5 pb-36 pt-6 sm:px-7">
+          <Outlet />
+        </main>
+        {withNav && <BottomNav />}
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden lg:grid lg:min-h-dvh lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr]">
+        <Sidebar />
+        <main className="min-h-dvh px-8 py-8 2xl:px-12">
+          <Outlet />
+        </main>
       </div>
     </div>
   )

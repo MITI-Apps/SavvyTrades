@@ -82,8 +82,8 @@ export default function Journal() {
   const closedCount = displayTrades.filter((t) => t.status === 'closed').length
 
   return (
-    <div>
-      <div className="animate-fade-up mt-4 flex items-center justify-between">
+    <div className="max-w-5xl">
+      <div className="animate-fade-up mt-4 flex items-center justify-between lg:mt-0">
         <h1 className="font-display text-[19px] font-semibold">Journal</h1>
         {!accountsLoading && accounts.length > 0 && (
           <Link
