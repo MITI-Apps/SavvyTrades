@@ -54,7 +54,7 @@ export default function Accounts() {
   }
 
   return (
-    <div className="relative flex flex-col items-center pt-16 pb-32">
+    <div className="relative flex flex-col items-center pt-16 pb-32 lg:pt-8">
       <Link
         to="/new-account"
         className="absolute right-0 top-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-border-strong bg-white/[0.07]"

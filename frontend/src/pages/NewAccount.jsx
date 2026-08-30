@@ -47,7 +47,7 @@ export default function NewAccount() {
   }
 
   return (
-    <div>
+    <div className="max-w-2xl">
       <div className="animate-fade-up">
         <PageHeader backTo="/accounts" title="New Account" sub="Set up a fresh trading ledger" />
       </div>

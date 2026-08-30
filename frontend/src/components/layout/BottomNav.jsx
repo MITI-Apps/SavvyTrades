@@ -24,7 +24,7 @@ export default function BottomNav() {
       ? pathname.startsWith('/journal') || pathname.startsWith('/trade')
       : pathname.startsWith(to)
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md px-4 pb-4 lg:left-auto lg:right-0 lg:w-[28rem]">
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md px-4 pb-4 lg:hidden">
       <div className="relative mx-auto flex h-[74px] items-center justify-around rounded-[28px] border border-border-strong bg-app/75 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
         {items.map(({ to, label, icon: Icon, center }) =>
           center ? (
