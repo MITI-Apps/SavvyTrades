@@ -14,7 +14,7 @@ if (isProduction) {
         subject,
         htmlContent: html,
         sender: {
-          name: 'SavvyTrade',
+          name: 'SavvyTrades',
           email: process.env.BREVO_SENDER_EMAIL!,
         },
         to: [{ email: to }],
@@ -36,7 +36,7 @@ if (isProduction) {
   sendEmailFn = async (to, subject, html) => {
     try {
     await mailtrap.send({
-      from: { name: 'SavvyTrade', email: 'mailtrap@demomailtrap.co' },
+      from: { name: 'SavvyTrades', email: 'mailtrap@demomailtrap.co' },
       to: [{ email: to }],
       subject,
       html,
@@ -65,7 +65,7 @@ const sendVerificationEmail = async (email: string, name: string, token: string)
             <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:#1e293b;border-radius:12px;padding:40px;">
               <tr>
                 <td align="center" style="padding-bottom:24px;">
-                  <h1 style="color:#22d3ee;margin:0;font-size:24px;">SavvyTrade</h1>
+                  <h1 style="color:#22d3ee;margin:0;font-size:24px;">SavvyTrades</h1>
                 </td>
               </tr>
               <tr>
@@ -98,7 +98,7 @@ const sendVerificationEmail = async (email: string, name: string, token: string)
     </html>
   `;
 
-  await sendEmailFn(email, 'Verify your SavvyTrade account', html);
+  await sendEmailFn(email, 'Verify your SavvyTrades account', html);
 };
 
 const sendPasswordResetEmail = async (email: string, name: string, token: string): Promise<void> => {
@@ -118,7 +118,7 @@ const sendPasswordResetEmail = async (email: string, name: string, token: string
             <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:#1e293b;border-radius:12px;padding:40px;">
               <tr>
                 <td align="center" style="padding-bottom:24px;">
-                  <h1 style="color:#22d3ee;margin:0;font-size:24px;">SavvyTrade</h1>
+                  <h1 style="color:#22d3ee;margin:0;font-size:24px;">SavvyTrades</h1>
                 </td>
               </tr>
               <tr>
@@ -151,7 +151,7 @@ const sendPasswordResetEmail = async (email: string, name: string, token: string
     </html>
   `;
 
-  await sendEmailFn(email, 'Reset your SavvyTrade password', html);
+  await sendEmailFn(email, 'Reset your SavvyTrades password', html);
 };
 
 export { sendVerificationEmail, sendPasswordResetEmail };

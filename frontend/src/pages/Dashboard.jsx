@@ -142,8 +142,8 @@ export default function Dashboard() {
     .slice(0, 2) || '??'
 
   return (
-    <div>
-      <div className="animate-fade-up mt-4 flex items-center justify-between">
+    <div className="max-w-5xl">
+      <div className="animate-fade-up mt-4 flex items-center justify-between lg:mt-0">
         <div>
           <div className="text-xs text-ink-3">{greeting}</div>
           <div className="font-display text-lg font-bold">{firstName}</div>
@@ -302,20 +302,20 @@ export default function Dashboard() {
             <div className="text-xs text-ink-3">All time</div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
-              className="animate-fade-up"
+              className="animate-fade-up lg:col-span-2"
               label="Total Trades (closed)"
               value={statsLoading ? '—' : String(stats?.totalTrades ?? 0)}
             />
             <StatCard
-              className="animate-fade-up"
+              className="animate-fade-up lg:col-span-2"
               label="Win Rate"
               value={statsLoading ? '—' : `${stats?.winRate ?? 0}%`}
               valueClass="text-mint"
             />
             <GlassCard
-              className="animate-fade-up col-span-2 flex items-center justify-between p-4"
+              className="animate-fade-up col-span-2 flex items-center justify-between p-4 lg:col-span-4"
               style={{ animationDelay: '0.09s' }}
             >
               <div>

@@ -84,7 +84,7 @@ export default function EditAccount() {
   }
 
   return (
-    <div>
+    <div className="max-w-2xl">
       <div className="animate-fade-up">
         <PageHeader backTo="/accounts" title="Edit Account" sub="Update your trading account" />
       </div>

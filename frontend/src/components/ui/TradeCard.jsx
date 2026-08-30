@@ -18,30 +18,30 @@ export default function TradeCard({ trade, delay = 0 }) {
       className="animate-fade-up block"
       style={{ animationDelay: `${delay}s` }}
     >
-      <GlassCard className="flex items-center justify-between gap-2.5 px-4 py-[15px] transition-colors hover:border-border-strong">
-        <div className="flex items-center gap-3">
-          <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[13px] bg-surface-3 text-[11px] font-extrabold tracking-tight text-ink-2">
+      <GlassCard className="flex items-center justify-between gap-2.5 px-4 py-[15px] transition-colors hover:border-border-strong lg:px-6">
+        <div className="flex items-center gap-3 lg:gap-4">
+          <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[13px] bg-surface-3 text-[11px] font-extrabold tracking-tight text-ink-2 lg:h-[46px] lg:w-[46px] lg:text-[12px]">
             {trade.badge}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[14.5px] font-bold">{trade.symbol}</span>
+              <span className="text-[14.5px] font-bold lg:text-[15px]">{trade.symbol}</span>
               {isOpen && (
                 <span className="inline-flex h-[18px] items-center rounded-full bg-amber/15 px-2 text-[10px] font-bold text-amber">
                   OPEN
                 </span>
               )}
             </div>
-            <div className="mt-[3px] text-[11.5px] text-ink-3">
+            <div className="mt-[3px] text-[11.5px] text-ink-3 lg:text-[12px]">
               {trade.date} · {trade.time}
             </div>
           </div>
         </div>
-        <div className="text-right">
+        <div className="flex items-center gap-4 lg:gap-6">
           <Pill variant={isOpen ? 'neutral' : trade.direction === 'buy' ? 'mint' : 'rose'}>
             {isOpen ? '● Open' : trade.direction === 'buy' ? '▲ Buy' : '▼ Sell'}
           </Pill>
-          <div className={`mt-2 text-[15px] font-bold tabular-nums ${plClass}`}>
+          <div className={`min-w-[70px] text-right text-[15px] font-bold tabular-nums ${plClass} lg:text-[16px]`}>
             {isOpen ? '—' : fmtPL(trade.pl)}
           </div>
         </div>

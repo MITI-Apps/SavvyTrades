@@ -212,7 +212,7 @@ export default function TradeDetail() {
   const outcomeClass = isOpen ? 'neutral' : outcome === 'win' ? 'mint' : outcome === 'loss' ? 'rose' : 'amber'
 
   return (
-    <div>
+    <div className="max-w-2xl">
       <div className="animate-fade-up">
         <PageHeader
           backTo="/journal"

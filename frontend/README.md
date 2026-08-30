@@ -1,4 +1,4 @@
-# SavvyTrade
+# SavvyTrades
 
 A premium trading journal built like a private bank app — dark, glass-surfaced, and understated.
 

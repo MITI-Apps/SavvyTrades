@@ -147,7 +147,7 @@ export default function AddTrade() {
   }
 
   return (
-    <div>
+    <div className="max-w-2xl">
       <div className="animate-fade-up">
         <PageHeader
           backTo="/dashboard"

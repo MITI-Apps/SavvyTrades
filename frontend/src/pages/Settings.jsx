@@ -137,8 +137,8 @@ export default function Settings() {
   }
 
   return (
-    <div>
-      <h1 className="animate-fade-up font-display text-[22px] font-semibold">Profile</h1>
+    <div className="max-w-2xl">
+      <h1 className="animate-fade-up font-display text-[22px] font-semibold lg:mt-0">Profile</h1>
 
       <GlassCard
         className="animate-fade-up mt-5 cursor-pointer"
