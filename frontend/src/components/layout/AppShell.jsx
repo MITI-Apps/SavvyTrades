@@ -7,8 +7,8 @@ import { IconGrid, IconJournal, IconPlus, IconGear, IconLogout } from '../Icons'
 function Sidebar() {
   const { pathname } = useLocation()
   const { user, logout } = useAuth()
-  const { accounts } = useAccounts()
-  const needsAccount = accounts.length === 0
+  const { accounts, loading } = useAccounts()
+  const needsAccount = !loading && accounts.length === 0
   const activeAccountId = localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
 
   const initials = user?.name
