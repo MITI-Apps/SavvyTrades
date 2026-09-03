@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
+import { useAccounts } from '../hooks/useData'
 import PageHeader from '../components/ui/PageHeader'
 import GlassCard from '../components/ui/GlassCard'
 import Input from '../components/ui/Input'
@@ -12,6 +13,7 @@ const types = ['Prop Firm', 'Personal', 'Demo', 'Managed']
 
 export default function NewAccount() {
   const navigate = useNavigate()
+  const { refetch: refetchAccounts } = useAccounts()
   const [accountName, setAccountName] = useState('')
   const [market, setMarket] = useState('Forex')
   const [type, setType] = useState('Prop Firm')
@@ -38,6 +40,7 @@ export default function NewAccount() {
       if (result?.account?.id) {
         localStorage.setItem('activeAccountId', result.account.id)
       }
+      await refetchAccounts()
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)
