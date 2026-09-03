@@ -1,26 +1,60 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
 
+let _accounts = null
+let _accountsLoading = true
+let _accountsError = null
+const _accountsSubscribers = new Set()
+
+function _notifyAccounts() {
+  _accountsSubscribers.forEach((cb) => cb())
+}
+
+function _fetchAccounts() {
+  _accountsLoading = true
+  _accountsError = null
+  _notifyAccounts()
+  api
+    .get('/accounts')
+    .then((data) => {
+      _accounts = data
+      _accountsLoading = false
+    })
+    .catch((err) => {
+      _accountsError = err.message
+      _accountsLoading = false
+    })
+    .finally(() => {
+      _notifyAccounts()
+    })
+}
+
 export function useAccounts() {
-  const [accounts, setAccounts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [, forceUpdate] = useState(0)
 
-  function refetch() {
-    setLoading(true)
-    setError(null)
-    api
-      .get('/accounts')
-      .then((data) => setAccounts(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    refetch()
+  const refetch = useCallback(() => {
+    _fetchAccounts()
   }, [])
 
-  return { accounts, loading, error, refetch }
+  useEffect(() => {
+    const subscriber = () => forceUpdate((c) => c + 1)
+    _accountsSubscribers.add(subscriber)
+
+    if (_accounts === null && _accountsLoading) {
+      _fetchAccounts()
+    }
+
+    return () => {
+      _accountsSubscribers.delete(subscriber)
+    }
+  }, [])
+
+  return {
+    accounts: _accounts || [],
+    loading: _accountsLoading,
+    error: _accountsError,
+    refetch,
+  }
 }
 
 export function useDashboard(accountId) {
