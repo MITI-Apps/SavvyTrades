@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../lib/api'
+import { useAccounts } from '../hooks/useData'
 import PageHeader from '../components/ui/PageHeader'
 import GlassCard from '../components/ui/GlassCard'
 import Input from '../components/ui/Input'
@@ -13,6 +14,7 @@ const types = ['Prop Firm', 'Personal', 'Demo', 'Managed']
 export default function EditAccount() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { refetch: refetchAccounts } = useAccounts()
   const [accountName, setAccountName] = useState('')
   const [market, setMarket] = useState('Forex')
   const [type, setType] = useState('Prop Firm')
@@ -55,7 +57,8 @@ export default function EditAccount() {
         startingBalance: startingBalance ? parseFloat(startingBalance) : 0,
         currency: currency.trim().toUpperCase() || 'USD',
       })
-      navigate('/accounts')
+      await refetchAccounts()
+      navigate('/dashboard')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -67,6 +70,7 @@ export default function EditAccount() {
     setDeleting(true)
     try {
       await api.delete(`/trading-accounts/${id}`)
+      await refetchAccounts()
       navigate('/accounts')
     } catch (err) {
       setError(err.message)

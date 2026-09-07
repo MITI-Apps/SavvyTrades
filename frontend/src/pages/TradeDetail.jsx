@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { useTrade } from '../hooks/useData'
+import { useTrade, useAccounts } from '../hooks/useData'
 import { fmtPL, fmtDateTime, normalizeDirection, normalizeOutcome } from '../utils'
 import { api } from '../lib/api'
 import PageHeader from '../components/ui/PageHeader'
@@ -47,6 +47,7 @@ export default function TradeDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { trade, loading, error } = useTrade(id)
+  const { refetch: refetchAccounts } = useAccounts()
   const [screenshots, setScreenshots] = useState({ before: [], after: [] })
   const [editing, setEditing] = useState(false)
   const [editData, setEditData] = useState({})
@@ -121,6 +122,7 @@ export default function TradeDetail() {
         confluence: editData.confluence || null,
         notes: editData.notes || null,
       })
+      await refetchAccounts()
       setEditing(false)
       window.location.reload()
     } catch (err) {
@@ -134,6 +136,7 @@ export default function TradeDetail() {
     setDeleting(true)
     try {
       await api.delete(`/trades/${id}`)
+      await refetchAccounts()
       navigate('/journal')
     } catch (err) {
       alert(err.message)
