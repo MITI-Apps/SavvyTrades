@@ -30,7 +30,7 @@ function UploadBox({ filename, onFile }) {
 export default function AddTrade() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { accounts, loading: accountsLoading } = useAccounts()
+  const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useAccounts()
   const [symbol, setSymbol] = useState('')
   const [direction, setDirection] = useState('buy')
   const [outcome, setOutcome] = useState('open')
@@ -138,6 +138,7 @@ export default function AddTrade() {
         return
       }
 
+      await refetchAccounts()
       navigate('/journal')
     } catch (err) {
       setError(err.message)
