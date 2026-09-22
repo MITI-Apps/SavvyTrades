@@ -90,7 +90,7 @@ export default function AppShell({ withNav = false }) {
   return (
     <div className="bg-page-glows min-h-dvh font-sans text-ink antialiased">
       {/* Mobile layout */}
-      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col lg:hidden">
+      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col md:hidden">
         <main className="flex-1 px-5 pb-36 pt-6 sm:px-7">
           <Outlet />
         </main>
@@ -98,7 +98,7 @@ export default function AppShell({ withNav = false }) {
       </div>
 
       {/* Desktop layout */}
-      <div className="hidden lg:grid lg:min-h-dvh lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr]">
+      <div className="hidden md:grid md:min-h-dvh md:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr]">
         <Sidebar />
         <main className="min-h-dvh px-8 py-8 2xl:px-12">
           <Outlet />
