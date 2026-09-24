@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useId, useRef, useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useAccounts, useAccountStats, useEquityCurve } from '../hooks/useData'
@@ -10,18 +10,26 @@ import StatCard from '../components/ui/StatCard'
 import { IconChevronDown, IconGear } from '../components/Icons'
 
 function EquityChart({ points }) {
+  const gradientId = useId()
   if (!points || points.length < 2) {
     return (
-      <svg width="90" height="34" viewBox="0 0 90 34" fill="none" aria-hidden>
+      <svg
+        width="90"
+        height="34"
+        viewBox="0 0 90 34"
+        fill="none"
+        aria-hidden
+        className="h-[34px] w-[90px] shrink-0 sm:h-[48px] sm:w-[126px] lg:h-[64px] lg:w-[170px]"
+      >
         <defs>
-          <linearGradient id="pl-grad" x1="0" y1="0" x2="90" y2="0">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="90" y2="0">
             <stop stopColor="#3fd9ac" />
             <stop offset="1" stopColor="#7c93ff" />
           </linearGradient>
         </defs>
         <path
           d="M0 28 L12 24 L24 26 L36 16 L48 19 L60 8 L72 12 L90 2"
-          stroke="url(#pl-grad)"
+          stroke={`url(#${gradientId})`}
           strokeWidth="2.4"
           fill="none"
           strokeLinecap="round"
@@ -50,16 +58,23 @@ function EquityChart({ points }) {
   const isPositive = (points[points.length - 1].balance - points[0].balance) >= 0
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} fill="none" aria-hidden>
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      fill="none"
+      aria-hidden
+      className="h-[34px] w-[90px] shrink-0 sm:h-[48px] sm:w-[126px] lg:h-[64px] lg:w-[170px]"
+    >
       <defs>
-        <linearGradient id="pl-grad" x1="0" y1="0" x2={width} y2="0">
+        <linearGradient id={gradientId} x1="0" y1="0" x2={width} y2="0">
           <stop stopColor={isPositive ? '#3fd9ac' : '#f2778c'} />
           <stop offset="1" stopColor="#7c93ff" />
         </linearGradient>
       </defs>
       <path
         d={pathData}
-        stroke="url(#pl-grad)"
+        stroke={`url(#${gradientId})`}
         strokeWidth="2.4"
         fill="none"
         strokeLinecap="round"
