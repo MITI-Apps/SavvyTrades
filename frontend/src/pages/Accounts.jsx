@@ -85,7 +85,7 @@ export default function Accounts() {
         ))}
       </div>
 
-      <div className="animate-fade-up fixed inset-x-0 bottom-6 z-10 px-5">
+      <div className="animate-fade-up fixed left-0 right-0 bottom-6 z-10 px-5 md:left-[260px] xl:left-[280px]">
         <Button
           variant="ghost"
           className="mx-auto max-w-[305px]"
