@@ -54,7 +54,7 @@ export default function Accounts() {
   }
 
   return (
-    <div className="relative flex flex-col items-center pt-16 pb-32 lg:pt-8">
+    <div className="relative flex flex-col items-center pt-16 pb-32 md:pb-20 md:pt-8">
       <Link
         to="/new-account"
         className="absolute right-0 top-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-border-strong bg-white/[0.07]"
@@ -85,10 +85,10 @@ export default function Accounts() {
         ))}
       </div>
 
-      <div className="animate-fade-up fixed inset-x-0 bottom-6 z-10 px-5 lg:left-auto lg:right-0 lg:w-[28rem]">
+      <div className="animate-fade-up fixed inset-x-0 bottom-6 z-10 px-5">
         <Button
           variant="ghost"
-          className="mx-auto w-[305px] max-w-full"
+          className="mx-auto max-w-[305px]"
           onClick={() => navigate(`/dashboard?account=${resolvedSelected}`)}
         >
           Set as Active Account
