@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { api } from '../lib/api'
 import GlassCard from '../components/ui/GlassCard'
@@ -56,6 +56,7 @@ export default function Settings() {
   const { user, logout } = useAuth()
   const [showProfile, setShowProfile] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showPrivacy, setShowPrivacy] = useState(false)
   const [profileName, setProfileName] = useState(user?.name || '')
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileMsg, setProfileMsg] = useState('')
@@ -176,7 +177,13 @@ export default function Settings() {
           delay={0}
         />
         <SettingsItem icon={IconBell} title="Notifications" sub="Trade reminders & alerts" delay={0.05} />
-        <SettingsItem icon={IconShield} title="Privacy & Security" sub="Manage data & sessions" delay={0.1} />
+        <SettingsItem
+          icon={IconShield}
+          title="Privacy & Security"
+          sub="Manage data & sessions"
+          delay={0.1}
+          onClick={() => setShowPrivacy(true)}
+        />
       </GlassCard>
 
       <GlassCard className="animate-fade-up mt-4 overflow-hidden" style={{ animationDelay: '0.14s' }}>
@@ -256,6 +263,38 @@ export default function Settings() {
           <Button onClick={handleChangePassword} disabled={passwordSaving}>
             {passwordSaving ? 'Changing…' : 'Change Password'}
           </Button>
+        </div>
+      </Modal>
+
+      <Modal open={showPrivacy} onClose={() => setShowPrivacy(false)} title="Privacy & Security">
+        <div className="mt-5 space-y-5 text-[13.5px] leading-relaxed text-ink-2">
+          <div>
+            <div className="text-sm font-semibold text-ink">Account data</div>
+            <p className="mt-1">
+              Your journal, screenshots, and account details are private to you and never shared with third parties.
+            </p>
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-ink">Email address</div>
+            <p className="mt-1">
+              Your email is used only for verification and password resets. Contact support to change it.
+            </p>
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-ink">Sessions</div>
+            <p className="mt-1">
+              You'll stay signed in on this device until you log out. Log out of unused devices for added security.
+            </p>
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-ink">Data deletion</div>
+            <p className="mt-1">
+              Deleting an account removes all associated accounts, trades, and screenshots. Contact support to erase your data entirely.
+            </p>
+          </div>
+          <Link to="/privacy" onClick={() => setShowPrivacy(false)}>
+            <span className="text-[13px] font-semibold text-blue1">Read the full Privacy Policy →</span>
+          </Link>
         </div>
       </Modal>
     </div>

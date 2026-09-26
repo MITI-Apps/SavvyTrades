@@ -349,8 +349,8 @@ export default function Landing() {
           </div>
           <p className="text-xs text-ink-3">&copy; {new Date().getFullYear()} SavvyTrades. All rights reserved.</p>
           <div className="flex items-center gap-5">
-            <a href="#" onClick={(e) => e.preventDefault()} className="text-xs text-ink-3 transition hover:text-ink">Privacy</a>
-            <a href="#" onClick={(e) => e.preventDefault()} className="text-xs text-ink-3 transition hover:text-ink">Terms</a>
+            <Link to="/privacy" className="text-xs text-ink-3 transition hover:text-ink">Privacy</Link>
+            <Link to="/terms" className="text-xs text-ink-3 transition hover:text-ink">Terms</Link>
           </div>
         </div>
       </footer>
