@@ -57,6 +57,7 @@ export default function Settings() {
   const [showProfile, setShowProfile] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
   const [profileName, setProfileName] = useState(user?.name || '')
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileMsg, setProfileMsg] = useState('')
@@ -176,7 +177,13 @@ export default function Settings() {
           }}
           delay={0}
         />
-        <SettingsItem icon={IconBell} title="Notifications" sub="Trade reminders & alerts" delay={0.05} />
+        <SettingsItem
+          icon={IconBell}
+          title="Notifications"
+          sub="Trade reminders & alerts"
+          delay={0.05}
+          onClick={() => setShowNotifications(true)}
+        />
         <SettingsItem
           icon={IconShield}
           title="Privacy & Security"
@@ -263,6 +270,18 @@ export default function Settings() {
           <Button onClick={handleChangePassword} disabled={passwordSaving}>
             {passwordSaving ? 'Changing…' : 'Change Password'}
           </Button>
+        </div>
+      </Modal>
+
+      <Modal open={showNotifications} onClose={() => setShowNotifications(false)} title="Notifications">
+        <div className="mt-5 flex flex-col gap-4 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-3 text-ink-2 mx-auto">
+            <IconBell width={22} height={22} />
+          </span>
+          <p className="text-[13.5px] leading-relaxed text-ink-2">
+            Notifications are not available yet. Trade reminders, alerts, and summaries are coming soon.
+          </p>
+          <Button onClick={() => setShowNotifications(false)}>Got it</Button>
         </div>
       </Modal>
 
