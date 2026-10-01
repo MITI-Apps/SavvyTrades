@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import  TradingAccount  from '../models/TradingAccount.js';
 import { Op } from 'sequelize';
+import { createNotification } from '../services/notification.service.js';
 
 export const createTradingAccount = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -24,6 +25,20 @@ export const createTradingAccount = async (req: Request, res: Response, next: Ne
       startingBalance: startingBalance || 0.0,
       currency: currency || 'USD',
     });
+
+    // Fire a notification for this user (wrapped in its own try/catch so a
+    // notification failure never fails the account creation request).
+    try {
+      await createNotification(
+        userId!,
+        'ACCOUNT_CREATED',
+        'Account created',
+        `Your ${accountName} account is ready to track trades.`,
+        { accountId: account.id }
+      );
+    } catch (notifError) {
+      console.error('Failed to create account notification:', notifError);
+    }
 
     res.status(201).json({
       message: 'Trading account created successfully',

@@ -6,6 +6,7 @@ import tradingAccountRoutes from "./routes/tradingAccount.routes.js"
 import tradeRoutes from './routes/trade.routes.js';
 import screenshotRoutes from './routes/screenshot.routes.js'
 import dashboardRoutes from './routes/dashboard.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimit.middleware.js';
 import "./models/index.js"
@@ -41,6 +42,9 @@ app.use('/api/v1/trades', tradeRoutes);
 app.use('/api/v1', screenshotRoutes);
 
 app.use('/api/v1', dashboardRoutes);
+
+// Notification Routes
+app.use('/api/v1/notifications', notificationRoutes);
 
 app.use(errorHandler);
 

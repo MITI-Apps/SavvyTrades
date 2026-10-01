@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useNotifications, markNotificationRead, markAllNotificationsRead } from '../hooks/useNotifications'
 import { api } from '../lib/api'
 import GlassCard from '../components/ui/GlassCard'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
+import NotificationList from '../components/notifications/NotificationList'
 import {
   IconBell,
   IconChevronRight,
@@ -54,6 +56,7 @@ function Modal({ open, onClose, title, children }) {
 export default function Settings() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const { notifications, unreadCount, loading, refetch } = useNotifications()
   const [showProfile, setShowProfile] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
@@ -180,9 +183,12 @@ export default function Settings() {
         <SettingsItem
           icon={IconBell}
           title="Notifications"
-          sub="Trade reminders & alerts"
+          sub={unreadCount > 0 ? `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}` : 'No unread notifications'}
           delay={0.05}
-          onClick={() => setShowNotifications(true)}
+          onClick={() => {
+            refetch()
+            setShowNotifications(true)
+          }}
         />
         <SettingsItem
           icon={IconShield}
@@ -274,14 +280,26 @@ export default function Settings() {
       </Modal>
 
       <Modal open={showNotifications} onClose={() => setShowNotifications(false)} title="Notifications">
-        <div className="mt-5 flex flex-col gap-4 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-3 text-ink-2 mx-auto">
-            <IconBell width={22} height={22} />
+        <div className="mt-5 flex items-center justify-between">
+          <span className="text-[12px] text-ink-3">
+            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
           </span>
-          <p className="text-[13.5px] leading-relaxed text-ink-2">
-            Notifications are not available yet. Trade reminders, alerts, and summaries are coming soon.
-          </p>
-          <Button onClick={() => setShowNotifications(false)}>Got it</Button>
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              onClick={() => markAllNotificationsRead()}
+              className="text-[12px] font-semibold text-blue1 transition hover:text-blue2"
+            >
+              Mark all read
+            </button>
+          )}
+        </div>
+        <div className="mx-[-24px] mt-3">
+          <NotificationList
+            notifications={notifications}
+            loading={loading}
+            onMarkOne={markNotificationRead}
+          />
         </div>
       </Modal>
 
