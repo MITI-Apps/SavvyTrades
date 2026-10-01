@@ -3,6 +3,7 @@ import TradingAccounts from './TradingAccount.js'
 import Trade from './Trades.js';
 import TradeScreenshots from './TradeScreenshot.js'
 import VerificationToken from './VerificationToken.js'
+import Notification from './Notification.js'
 
 // User -> TradingAccount (1:N)
 User.hasMany(TradingAccounts, {
@@ -52,4 +53,16 @@ VerificationToken.belongsTo(User, {
     as: 'user',
 });
 
-export { User, TradingAccounts, Trade, TradeScreenshots, VerificationToken };
+// User -> Notification (1:N)
+User.hasMany(Notification, {
+    foreignKey: 'userId',
+    as: 'notifications',
+    onDelete: 'CASCADE',
+});
+
+Notification.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user',
+});
+
+export { User, TradingAccounts, Trade, TradeScreenshots, VerificationToken, Notification };

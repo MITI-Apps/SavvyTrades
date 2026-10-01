@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { useAccounts } from '../../hooks/useData'
 import BottomNav from './BottomNav'
 import { IconGrid, IconJournal, IconPlus, IconGear, IconLogout } from '../Icons'
+import NotificationBell from '../notifications/NotificationBell'
 
 function Sidebar() {
   const { pathname } = useLocation()
@@ -36,11 +37,14 @@ function Sidebar() {
 
   return (
     <aside className="sticky top-0 z-40 flex h-dvh w-[260px] shrink-0 flex-col border-r border-border bg-surface/80 backdrop-blur-xl xl:w-[280px]">
-      <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
+      <div className="relative flex h-16 items-center gap-2.5 border-b border-border px-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue1 to-blue2">
           <span className="font-display text-sm font-bold text-[#0b0d13]">S</span>
         </div>
         <span className="font-display text-[15px] font-semibold tracking-tight">SavvyTrades</span>
+        <div className="ml-auto">
+          <NotificationBell />
+        </div>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
