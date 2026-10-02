@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import app from "./app.js"
 import  sequelize  from "./database/connection.js";
+import { startJobs } from './jobs/index.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -14,6 +15,9 @@ async function startServer() {
     try {
         await sequelize.authenticate();
         console.log('✅ Database connection established successfully.');
+
+        // Start scheduled jobs (e.g. daily trade reminders)
+        startJobs();
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}/api/v1/health`);
