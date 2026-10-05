@@ -1,6 +1,11 @@
 import Notification from '../models/Notification.js';
 
-type NotificationType = 'ACCOUNT_CREATED' | 'TRADE_REMINDER' | 'PERFORMANCE_SUMMARY' | 'SECURITY_ALERT';
+type NotificationType =
+  | 'ACCOUNT_CREATED'
+  | 'TRADE_REMINDER'
+  | 'PERFORMANCE_SUMMARY'
+  | 'SECURITY_ALERT'
+  | 'TRADE_CLOSED';
 
 // Central "producer" helper: any calling code (controllers, cron jobs, mailer)
 // creates a notification through this function instead of touching the model directly.

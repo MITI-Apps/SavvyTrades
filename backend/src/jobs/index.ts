@@ -13,7 +13,7 @@ import { sendTradeReminders } from './tradeReminder.job.js';
 //
 // '0 8 * * *'  → 08:00 server time, every day
 // '* * * * *'  → every minute (change to this to test the job)
-const TRADE_REMINDER_CRON = process.env.TRADE_REMINDER_CRON || '0 8 * * *';
+const TRADE_REMINDER_CRON = process.env.TRADE_REMINDER_CRON || '* * * * *';
 
 export function startJobs() {
   cron.schedule(TRADE_REMINDER_CRON, () => {
