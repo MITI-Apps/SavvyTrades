@@ -1,10 +1,11 @@
-import { IconBell, IconPlus, IconShield, IconGrid, IconLock } from '../Icons'
+import { IconBell, IconPlus, IconShield, IconGrid, IconLock, IconCheck } from '../Icons'
 
 const TYPE_ICONS = {
   ACCOUNT_CREATED: IconPlus,
   TRADE_REMINDER: IconShield,
   PERFORMANCE_SUMMARY: IconGrid,
   SECURITY_ALERT: IconLock,
+  TRADE_CLOSED: IconCheck,
 }
 
 function timeAgo(iso) {

@@ -1,6 +1,7 @@
 import type { Response, Request, NextFunction } from 'express';
 import Trade from '../models/Trades.js';
 import  TradingAccount  from '../models/TradingAccount.js';
+import { createNotification } from '../services/notification.service.js';
 
 export const createTrade = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -138,7 +139,10 @@ export const updateTrade = async (req: Request, res: Response, next: NextFunctio
       return res.status(404).json({ error: 'Trade not found or access denied' });
     }
 
-    // 2. Business Logic: Handle Outcome & Timestamp State Transitions
+    // 2. Capture the pre-update state (trade.update() below mutates the instance)
+    const wasOpen = trade.outcome === 'OPEN';
+
+    // 3. Business Logic: Handle Outcome & Timestamp State Transitions
     if (updates.outcome) {
       if (updates.outcome === 'OPEN') {
         // Re-opening trade: reset closedAt and PnL
@@ -150,8 +154,24 @@ export const updateTrade = async (req: Request, res: Response, next: NextFunctio
       }
     }
 
-    // 3. Apply updates and save
+    // 4. Apply updates and save
     await trade.update(updates);
+
+    // Fire notification if a trade just closed (was OPEN and outcome becomes non-OPEN)
+    try {
+      const isNowClosed = updates.outcome && updates.outcome !== 'OPEN';
+      if (wasOpen && isNowClosed) {
+        await createNotification(
+          userId!,
+          'TRADE_CLOSED',
+          'Trade closed',
+          `Your ${trade.symbol} trade was closed as ${updates.outcome}.`,
+          { tradeId: trade.id, outcome: updates.outcome, pnl: updates.pnl ?? trade.pnl }
+        );
+      }
+    } catch (notifError) {
+      console.error('Failed to create trade closed notification:', notifError);
+    }
 
     res.status(200).json({
       message: 'Trade updated successfully',
