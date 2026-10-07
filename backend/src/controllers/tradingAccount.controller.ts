@@ -149,7 +149,24 @@ export const deleteTradingAccount = async (req: Request, res: Response, next: Ne
       return res.status(404).json({ error: 'Trading account not found' });
     }
 
+    // Capture the name BEFORE destroy() — afterwards the instance is dead
+    const deletedAccountName = account.accountName;
+
     await account.destroy();
+
+    // Fire a notification (own try/catch: the delete already succeeded,
+    // so a notification failure must never fail the request)
+    try {
+      await createNotification(
+        userId!,
+        'ACCOUNT_DELETED',
+        'Account deleted',
+        `Your ${deletedAccountName} account was deleted.`,
+        { accountName: deletedAccountName }
+      );
+    } catch (notifError) {
+      console.error('Failed to create account deleted notification:', notifError);
+    }
 
     res.status(200).json({ message: 'Trading account deleted successfully' });
   } catch (error) {
