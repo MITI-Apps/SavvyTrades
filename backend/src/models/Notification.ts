@@ -1,7 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../database/connection.js';
 
-type NotificationType = 'ACCOUNT_CREATED' | 'TRADE_REMINDER' | 'PERFORMANCE_SUMMARY' | 'SECURITY_ALERT' | 'TRADE_CLOSED';
+type NotificationType = 'ACCOUNT_CREATED' | 'TRADE_REMINDER' | 'PERFORMANCE_SUMMARY' | 'SECURITY_ALERT' | 'TRADE_CLOSED' | 'ACCOUNT_DELETED';
 
 class Notification extends Model {
     declare id: string;
@@ -28,7 +28,7 @@ Notification.init(
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM('ACCOUNT_CREATED', 'TRADE_REMINDER', 'PERFORMANCE_SUMMARY', 'SECURITY_ALERT', 'TRADE_CLOSED'),
+      type: DataTypes.ENUM('ACCOUNT_CREATED', 'TRADE_REMINDER', 'PERFORMANCE_SUMMARY', 'SECURITY_ALERT', 'TRADE_CLOSED', 'ACCOUNT_DELETED'),
       allowNull: false,
     },
     title: {

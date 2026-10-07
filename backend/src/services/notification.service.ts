@@ -5,7 +5,8 @@ type NotificationType =
   | 'TRADE_REMINDER'
   | 'PERFORMANCE_SUMMARY'
   | 'SECURITY_ALERT'
-  | 'TRADE_CLOSED';
+  | 'TRADE_CLOSED'
+  | 'ACCOUNT_DELETED';
 
 // Central "producer" helper: any calling code (controllers, cron jobs, mailer)
 // creates a notification through this function instead of touching the model directly.
