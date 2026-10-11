@@ -187,6 +187,9 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Capture before mutation — used to detect whether anything really changed
+    const previousName = user.name;
+
     if (email) {
       const existingUser = await User.findOne({
         where: {
@@ -204,6 +207,21 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
     //update fields
     user.name = name;
     await user.save();
+
+    // Security alert — only when the name actually changed (the UI may save
+    // with an unchanged value; never notify for a no-op save)
+    try {
+      if (name && name !== previousName) {
+        await createNotification(
+          userId!,
+          'SECURITY_ALERT',
+          'Profile updated',
+          `Your display name was changed from "${previousName}" to "${name}".`
+        );
+      }
+    } catch (notifError) {
+      console.error('Failed to create profile change notification:', notifError);
+    }
 
     res.status(200).json({
       message: 'Profile updated successfully',
