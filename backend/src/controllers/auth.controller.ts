@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
 import { generateToken, verifyToken } from "../services/token.service.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "../services/email.service.js";
+import { createNotification } from "../services/notification.service.js";
 
 
 const registerUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -237,6 +238,19 @@ const changePassword = async (req: Request, res: Response, next: NextFunction) =
     const password = await bcrypt.hash(newPassword, 10);
     user.password = password;
     await user.save();
+
+    // Security alert (own try/catch: the password change already succeeded,
+    // so a notification failure must never fail the request)
+    try {
+      await createNotification(
+        userId!,
+        'SECURITY_ALERT',
+        'Password changed',
+        "Your password was changed. If this wasn't you, reset it immediately and secure your account."
+      );
+    } catch (notifError) {
+      console.error('Failed to create password change notification:', notifError);
+    }
 
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (error){
