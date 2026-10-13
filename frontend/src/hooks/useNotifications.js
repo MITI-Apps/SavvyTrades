@@ -8,6 +8,7 @@ let _unreadCount = 0
 let _fetched = false
 let _loading = false
 let _error = null
+let _pollTimer = null
 const _subscribers = new Set()
 
 function _notify() {
@@ -31,6 +32,25 @@ async function _fetchNotifications() {
   }
 }
 
+// Module-level poller: one interval for the whole app, not one per component.
+// Skips refetches while the tab is hidden (saves requests), and catches up
+// immediately when the tab becomes visible again.
+function _startPolling(intervalMs = 30000) {
+  if (_pollTimer) return
+
+  _pollTimer = setInterval(() => {
+    if (document.visibilityState === 'visible' && _fetched) {
+      _fetchNotifications()
+    }
+  }, intervalMs)
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && _fetched) {
+      _fetchNotifications()
+    }
+  })
+}
+
 export function useNotifications() {
   const [, forceUpdate] = useState(0)
 
@@ -45,9 +65,14 @@ export function useNotifications() {
     if (!_fetched) {
       _fetchNotifications()
     }
+    _startPolling()
 
     return () => {
       _subscribers.delete(subscriber)
+      // No clearInterval here — the poller is module-level (one instance for
+      // the whole app). The browser cleans up the interval when the page
+      // unloads; stopping it here would kill polling for every other
+      // mounted component sharing the same hook.
     }
   }, [])
 

@@ -154,6 +154,19 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
+    // Security alert — password was reset via the forgot-password flow
+    // (user may not have been logged in, so this is especially important)
+    try {
+      await createNotification(
+        userId!,
+        'SECURITY_ALERT',
+        'Password reset',
+        'Your password was reset. If this wasn\'t you, secure your account immediately.'
+      );
+    } catch (notifError) {
+      console.error('Failed to create password reset notification:', notifError);
+    }
+
     res.status(200).json({ message: 'Password reset successful. You can now log in with your new password.' });
   } catch (error) {
     next(error);
@@ -189,6 +202,7 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
 
     // Capture before mutation — used to detect whether anything really changed
     const previousName = user.name;
+    const previousEmail = user.email;
 
     if (email) {
       const existingUser = await User.findOne({
@@ -208,8 +222,8 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
     user.name = name;
     await user.save();
 
-    // Security alert — only when the name actually changed (the UI may save
-    // with an unchanged value; never notify for a no-op save)
+    // Security alerts — only when something actually changed (the UI may
+    // save with unchanged values; never notify for a no-op save)
     try {
       if (name && name !== previousName) {
         await createNotification(
@@ -217,6 +231,14 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
           'SECURITY_ALERT',
           'Profile updated',
           `Your display name was changed from "${previousName}" to "${name}".`
+        );
+      }
+      if (email && email !== previousEmail) {
+        await createNotification(
+          userId!,
+          'SECURITY_ALERT',
+          'Email changed',
+          `Your account email was changed from "${previousEmail}" to "${email}".`
         );
       }
     } catch (notifError) {
