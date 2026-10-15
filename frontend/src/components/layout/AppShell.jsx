@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useAccounts } from '../../hooks/useData'
 import BottomNav from './BottomNav'
-import { IconGrid, IconJournal, IconPlus, IconGear, IconLogout } from '../Icons'
+import { IconGrid, IconJournal, IconPlus, IconGear, IconLogout, LogoMark } from '../Icons'
 import NotificationBell from '../notifications/NotificationBell'
 
 function Sidebar() {
@@ -39,7 +39,7 @@ function Sidebar() {
     <aside className="sticky top-0 z-40 flex h-dvh w-[260px] shrink-0 flex-col border-r border-border bg-surface/80 backdrop-blur-xl xl:w-[280px]">
       <div className="relative flex h-16 items-center gap-2.5 border-b border-border px-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue1 to-blue2">
-          <span className="font-display text-sm font-bold text-[#0b0d13]">S</span>
+          <LogoMark width={20} height={20} />
         </div>
         <span className="font-display text-[15px] font-semibold tracking-tight">SavvyTrades</span>
         <div className="ml-auto">
