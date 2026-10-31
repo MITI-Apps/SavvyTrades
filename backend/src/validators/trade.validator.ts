@@ -31,6 +31,7 @@ export const getTradesQuerySchema = Joi.object({
   symbol: Joi.string().trim().uppercase().optional(),
   direction: Joi.string().valid('BUY', 'SELL').optional(),
   outcome: Joi.string().valid('WIN', 'LOSS', 'BREAK_EVEN', 'OPEN').optional(),
+  range: Joi.string().valid('all', '7d', '30d', '90d').optional(),
 });
 
 // Parameter Schema
