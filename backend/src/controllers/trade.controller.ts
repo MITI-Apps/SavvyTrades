@@ -1,4 +1,5 @@
 import type { Response, Request, NextFunction } from 'express';
+import { Op } from 'sequelize';
 import Trade from '../models/Trades.js';
 import  TradingAccount  from '../models/TradingAccount.js';
 import { createNotification } from '../services/notification.service.js';
@@ -55,7 +56,7 @@ export const createTrade = async (req: Request, res: Response, next: NextFunctio
 export const getTrades = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.userId;
-    const { tradingAccountId, symbol, direction, outcome } = req.query;
+    const { tradingAccountId, symbol, direction, outcome, range } = req.query;
 
     // 1. Verify the requested trading account exists AND belongs to the authenticated user
     const account = await TradingAccount.findOne({
@@ -76,6 +77,14 @@ export const getTrades = async (req: Request, res: Response, next: NextFunction)
     if (symbol) whereClause.symbol = symbol;
     if (direction) whereClause.direction = direction;
     if (outcome) whereClause.outcome = outcome;
+
+    // Date-range filter: only include trades opened within the last N days.
+    // Same daysMap convention as dashboard.service.ts.
+    if (range && range !== 'all') {
+      const daysMap: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90 };
+      const days = daysMap[range as string] || 30;
+      whereClause.openedAt = { [Op.gte]: new Date(Date.now() - days * 86400000) };
+    }
 
     const trades = await Trade.findAll({
       where: whereClause,
