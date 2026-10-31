@@ -26,12 +26,20 @@ const OUTCOME_OPTIONS = [
   { key: 'break_even', label: 'Break Even' },
 ]
 
+const RANGE_OPTIONS = [
+  { key: 'all', label: 'All' },
+  { key: '7d', label: '7D' },
+  { key: '30d', label: '30D' },
+  { key: '90d', label: '90D' },
+]
+
 export default function Journal() {
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
   const [directionFilter, setDirectionFilter] = useState('all')
   const [outcomeFilter, setOutcomeFilter] = useState('all')
+  const [rangeFilter, setRangeFilter] = useState('all')
   const { accounts, loading: accountsLoading } = useAccounts()
   const activeAccountId = localStorage.getItem('activeAccountId') || accounts[0]?.id || ''
   const { trades, loading, refetch } = useTrades(activeAccountId)
@@ -48,13 +56,14 @@ export default function Journal() {
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [activeAccountId])
 
-  const applyFilters = useCallback((direction, outcome) => {
+  const applyFilters = useCallback((direction, outcome, range) => {
     const params = {}
     if (direction !== 'all') params.direction = direction.toUpperCase()
     if (outcome !== 'all') {
       if (outcome === 'break_even') params.outcome = 'BREAK_EVEN'
       else params.outcome = outcome.toUpperCase()
     }
+    if (range !== 'all') params.range = range
     refetchRef.current(params)
   }, [])
 
@@ -77,7 +86,7 @@ export default function Journal() {
     return matchesQuery && t.status === 'closed'
   })
 
-  const hasActiveFilters = directionFilter !== 'all' || outcomeFilter !== 'all'
+  const hasActiveFilters = directionFilter !== 'all' || outcomeFilter !== 'all' || rangeFilter !== 'all'
   const openCount = displayTrades.filter((t) => t.status === 'open').length
   const closedCount = displayTrades.filter((t) => t.status === 'closed').length
 
@@ -133,13 +142,27 @@ export default function Journal() {
           {showFilters && (
             <div className="animate-fade-up mt-3 rounded-2xl border border-border bg-surface-2 p-4">
               <div className="mb-3">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3">Date</p>
+                <div className="flex gap-2">
+                  {RANGE_OPTIONS.map((opt) => (
+                    <OptionChip
+                      key={opt.key}
+                      selected={rangeFilter === opt.key}
+                      onClick={() => { setRangeFilter(opt.key); applyFilters(directionFilter, outcomeFilter, opt.key) }}
+                    >
+                      {opt.label}
+                    </OptionChip>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3">Direction</p>
                 <div className="flex gap-2">
                   {DIRECTION_OPTIONS.map((opt) => (
                     <OptionChip
                       key={opt.key}
                       selected={directionFilter === opt.key}
-                      onClick={() => { setDirectionFilter(opt.key); applyFilters(opt.key, outcomeFilter) }}
+                      onClick={() => { setDirectionFilter(opt.key); applyFilters(opt.key, outcomeFilter, rangeFilter) }}
                     >
                       {opt.label}
                     </OptionChip>
@@ -153,7 +176,7 @@ export default function Journal() {
                     <OptionChip
                       key={opt.key}
                       selected={outcomeFilter === opt.key}
-                      onClick={() => { setOutcomeFilter(opt.key); applyFilters(directionFilter, opt.key) }}
+                      onClick={() => { setOutcomeFilter(opt.key); applyFilters(directionFilter, opt.key, rangeFilter) }}
                     >
                       {opt.label}
                     </OptionChip>
@@ -163,7 +186,7 @@ export default function Journal() {
               {hasActiveFilters && (
                 <button
                   type="button"
-                  onClick={() => { setDirectionFilter('all'); setOutcomeFilter('all'); applyFilters('all', 'all') }}
+                  onClick={() => { setDirectionFilter('all'); setOutcomeFilter('all'); setRangeFilter('all'); applyFilters('all', 'all', 'all') }}
                   className="mt-3 text-[12px] font-semibold text-blue1 transition hover:brightness-110"
                 >
                   Clear filters
