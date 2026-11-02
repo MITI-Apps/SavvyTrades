@@ -7,8 +7,16 @@ import { fmtPL } from '../utils'
 import AtmCard from '../components/ui/AtmCard'
 import GlassCard from '../components/ui/GlassCard'
 import StatCard from '../components/ui/StatCard'
+import OptionChip from '../components/ui/OptionChip'
 import NotificationBell from '../components/notifications/NotificationBell'
 import { IconChevronDown, IconGear } from '../components/Icons'
+
+const RANGE_OPTIONS = [
+  { key: 'all', label: 'All' },
+  { key: '7d', label: '7D' },
+  { key: '30d', label: '30D' },
+  { key: '90d', label: '90D' },
+]
 
 function EquityChart({ points }) {
   const gradientId = useId()
@@ -94,13 +102,14 @@ export default function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [range, setRange] = useState('all')
   const menuRef = useRef(null)
   const lastTapRef = useRef(0)
   const touchStartRef = useRef(null)
 
   const resolvedId = activeId || accounts[0]?.id
-  const { stats, loading: statsLoading } = useAccountStats(resolvedId)
-  const { data: equityData } = useEquityCurve(resolvedId)
+  const { stats, loading: statsLoading } = useAccountStats(resolvedId, range)
+  const { data: equityData } = useEquityCurve(resolvedId, range)
   const active = accounts.find((a) => a.id === resolvedId)
 
   const hour = new Date().getHours()
@@ -314,11 +323,21 @@ export default function Dashboard() {
           </div>
 
           <div
-            className="animate-fade-up mt-6 flex items-baseline justify-between"
+            className="animate-fade-up mt-6 flex items-center justify-between gap-2"
             style={{ animationDelay: '0.09s' }}
           >
             <div className="font-display text-base font-semibold">Performance</div>
-            <div className="text-xs text-ink-3">All time</div>
+            <div className="flex gap-1.5">
+              {RANGE_OPTIONS.map((opt) => (
+                <OptionChip
+                  key={opt.key}
+                  selected={range === opt.key}
+                  onClick={() => setRange(opt.key)}
+                >
+                  {opt.label}
+                </OptionChip>
+              ))}
+            </div>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
