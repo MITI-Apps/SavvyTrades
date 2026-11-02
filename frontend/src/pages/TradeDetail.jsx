@@ -391,7 +391,7 @@ export default function TradeDetail() {
           {trade.notes && (
             <GlassCard className="animate-fade-up mt-4 p-[18px]" style={{ animationDelay: '0.16s' }}>
               <span className="text-xs font-semibold tracking-wide text-ink-2">Notes</span>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{trade.notes}</p>
+              <p className="mt-1.5 whitespace-pre-line text-[13.5px] leading-relaxed text-ink-2">{trade.notes}</p>
             </GlassCard>
           )}
 
