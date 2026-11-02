@@ -25,8 +25,9 @@ export const getAccountStats = async (req: Request, res: Response, next: NextFun
   try {
     const userId = req.auth?.userId!;
     const { accountId } = req.params;
+    const range = (req.query.range as string) || 'all';
 
-    const data = await calculateDashboardData(accountId as string, userId);
+    const data = await calculateDashboardData(accountId as string, userId, range);
     res.status(200).json({ stats: data.stats });
   } catch (error: any) {
     if (error.message === 'ACCOUNT_NOT_FOUND') {

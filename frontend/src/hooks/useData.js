@@ -76,7 +76,7 @@ export function useDashboard(accountId) {
   return { data, loading, error }
 }
 
-export function useAccountStats(accountId) {
+export function useAccountStats(accountId, range = 'all') {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -85,12 +85,13 @@ export function useAccountStats(accountId) {
     if (!accountId) return
     setLoading(true)
     setError(null)
+    const query = range && range !== 'all' ? `?range=${encodeURIComponent(range)}` : ''
     api
-      .get(`/accounts/${accountId}/stats`)
+      .get(`/accounts/${accountId}/stats${query}`)
       .then((d) => setStats(d.stats))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [accountId])
+  }, [accountId, range])
 
   return { stats, loading, error }
 }
@@ -141,7 +142,7 @@ export function useTrade(id) {
   return { trade, loading, error }
 }
 
-export function useEquityCurve(accountId) {
+export function useEquityCurve(accountId, range = 'all') {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -150,12 +151,13 @@ export function useEquityCurve(accountId) {
     if (!accountId) return
     setLoading(true)
     setError(null)
+    const query = range && range !== 'all' ? `?range=${encodeURIComponent(range)}` : ''
     api
-      .get(`/accounts/${accountId}/equity-curve`)
+      .get(`/accounts/${accountId}/equity-curve${query}`)
       .then((d) => setData(d))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [accountId])
+  }, [accountId, range])
 
   return { data, loading, error }
 }
