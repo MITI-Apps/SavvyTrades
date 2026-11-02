@@ -9,7 +9,7 @@ import GlassCard from '../components/ui/GlassCard'
 import StatCard from '../components/ui/StatCard'
 import OptionChip from '../components/ui/OptionChip'
 import NotificationBell from '../components/notifications/NotificationBell'
-import { IconChevronDown, IconGear } from '../components/Icons'
+import { IconChevronDown, IconGear, IconFilter } from '../components/Icons'
 
 const RANGE_OPTIONS = [
   { key: 'all', label: 'All' },
@@ -103,6 +103,7 @@ export default function Dashboard() {
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [range, setRange] = useState('all')
+  const [showRangeFilter, setShowRangeFilter] = useState(false)
   const menuRef = useRef(null)
   const lastTapRef = useRef(0)
   const touchStartRef = useRef(null)
@@ -323,11 +324,24 @@ export default function Dashboard() {
           </div>
 
           <div
-            className="animate-fade-up mt-6 flex items-center justify-between gap-2"
+            className="animate-fade-up mt-6 flex items-center justify-between"
             style={{ animationDelay: '0.09s' }}
           >
             <div className="font-display text-base font-semibold">Performance</div>
-            <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setShowRangeFilter(!showRangeFilter)}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg border transition ${
+                range !== 'all' ? 'border-blue1/50 bg-blue1/10' : 'border-border bg-surface-2'
+              }`}
+              aria-label="Filter performance range"
+            >
+              <IconFilter width={16} height={16} className={range !== 'all' ? 'text-blue1' : 'text-ink-2'} />
+            </button>
+          </div>
+
+          {showRangeFilter && (
+            <div className="animate-fade-up mt-3 flex gap-1.5">
               {RANGE_OPTIONS.map((opt) => (
                 <OptionChip
                   key={opt.key}
@@ -338,7 +352,7 @@ export default function Dashboard() {
                 </OptionChip>
               ))}
             </div>
-          </div>
+          )}
 
           <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
